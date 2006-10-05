@@ -132,7 +132,11 @@ public class WebService {
 		if (postalCodeSearchCriteria.getStyle() != null) {
 			url = url + "&style=" + postalCodeSearchCriteria.getStyle();
 		}
+		if (postalCodeSearchCriteria.getMaxRows() > 0) {
+			url = url + "&maxRows=" + postalCodeSearchCriteria.getMaxRows();
+		}
 
+		
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
