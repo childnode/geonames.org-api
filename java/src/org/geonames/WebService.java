@@ -317,6 +317,7 @@ public class WebService {
 			Toponym toponym = new Toponym();
 
 			toponym.setName(toponymElement.getChildText("name"));
+			toponym.setAlternateNames(toponymElement.getChildText("alternateNames"));
 			toponym.setLatitude(Double.parseDouble(toponymElement
 					.getChildText("lat")));
 			toponym.setLongitude(Double.parseDouble(toponymElement

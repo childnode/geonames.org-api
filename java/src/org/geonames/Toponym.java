@@ -28,6 +28,8 @@ public class Toponym {
 
 	private String name;
 
+	private String alternateNames;
+
 	private String countryCode;
 
 	private String countryName;
@@ -221,10 +223,26 @@ public class Toponym {
 	}
 
 	/**
-	 * @param countryName The countryName to set.
+	 * @param countryName
+	 *            The countryName to set.
 	 */
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
+	}
+
+	/**
+	 * @return the alternateNames as comma separated list
+	 */
+	public String getAlternateNames() {
+		return alternateNames;
+	}
+
+	/**
+	 * @param alternateNames
+	 *            the alternateNames to set
+	 */
+	public void setAlternateNames(String alternateNames) {
+		this.alternateNames = alternateNames;
 	}
 
 }
