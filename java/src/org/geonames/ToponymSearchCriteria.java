@@ -40,6 +40,8 @@ public class ToponymSearchCriteria {
 
 	private Style style;
 
+	private String featureClass;
+
 	private String[] featureCodes;
 
 	private int maxRows;
@@ -204,10 +206,26 @@ public class ToponymSearchCriteria {
 	}
 
 	/**
-	 * @param nameStartsWith The nameStartsWith to set.
+	 * @param nameStartsWith
+	 *            The nameStartsWith to set.
 	 */
 	public void setNameStartsWith(String nameStartsWith) {
 		this.nameStartsWith = nameStartsWith;
+	}
+
+	/**
+	 * @return the featureClass
+	 */
+	public String getFeatureClass() {
+		return featureClass;
+	}
+
+	/**
+	 * @param featureClass
+	 *            the featureClass to set
+	 */
+	public void setFeatureClass(String featureClass) {
+		this.featureClass = featureClass;
 	}
 
 }

@@ -28,13 +28,14 @@ import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+
 /**
  * provides static methods accessing the geonames web services
  * 
  * @author marc@geonames
  * 
  */
-public class WebService { 
+public class WebService {
 
 	private static String USER_AGENT = "geonames webservice client 0.1";
 
@@ -136,7 +137,6 @@ public class WebService {
 			url = url + "&maxRows=" + postalCodeSearchCriteria.getMaxRows();
 		}
 
-		
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
@@ -225,6 +225,80 @@ public class WebService {
 		return places;
 	}
 
+	public static Address findNearestAddress(double latitude, double longitude)
+			throws IOException, Exception {
+
+		String url = GEONAMES_SERVER + "/findNearestAddress?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+
+		URLConnection conn = new URL(url).openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(conn.getInputStream());
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("address")) {
+			Element codeElement = (Element) obj;
+			Address address = new Address();
+			address.setPostalCode(codeElement.getChildText("postalcode"));
+			address.setPlaceName(codeElement.getChildText("name"));
+			address.setCountryCode(codeElement.getChildText("countryCode"));
+
+			address.setLatitude(Double.parseDouble(codeElement
+					.getChildText("lat")));
+			address.setLongitude(Double.parseDouble(codeElement
+					.getChildText("lng")));
+
+			address.setAdminName1(codeElement.getChildText("adminName1"));
+			address.setAdminCode1(codeElement.getChildText("adminCode1"));
+			address.setAdminName2(codeElement.getChildText("adminName2"));
+			address.setAdminCode2(codeElement.getChildText("adminCode2"));
+
+			address.setDistance(Double.parseDouble(codeElement
+					.getChildText("distance")));
+
+			return address;
+		}
+
+		return null;
+	}
+
+	public static Intersection findNearestIntersection(double latitude,
+			double longitude) throws Exception {
+
+		String url = GEONAMES_SERVER + "/findNearestIntersection?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+
+		URLConnection conn = new URL(url).openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(conn.getInputStream());
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("intersection")) {
+			Element e = (Element) obj;
+			Intersection intersection = new Intersection();
+			intersection.setStreet1(e.getChildText("street1"));
+			intersection.setStreet2(e.getChildText("street2"));
+			intersection.setLatitude(Double.parseDouble(e.getChildText("lat")));
+			intersection.setLongitude(Double.parseDouble(e.getChildText("lng")));
+			intersection
+					.setDistance(Double.parseDouble(e.getChildText("distance")));
+			intersection.setPostalCode(e.getChildText("postalcode"));
+			intersection.setPlaceName(e.getChildText("placename"));
+			intersection.setCountryCode(e.getChildText("countryCode"));
+			intersection.setAdminName2(e.getChildText("adminName2"));
+			intersection.setAdminCode1(e.getChildText("adminCode1"));
+			intersection.setAdminName1(e.getChildText("adminName1"));
+			return intersection;
+		}
+		return null;
+	}
+
 	public static ToponymSearchResult search(String q, String countryCode,
 			String name, String[] featureCodes, int startRow) throws Exception {
 		return search(q, countryCode, name, featureCodes, startRow, null, null,
@@ -246,8 +320,8 @@ public class WebService {
 		return search(searchCriteria);
 	}
 
-	public static ToponymSearchResult search(ToponymSearchCriteria searchCriteria)
-			throws Exception {
+	public static ToponymSearchResult search(
+			ToponymSearchCriteria searchCriteria) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
 
 		String url = GEONAMES_SERVER + "/search?";
@@ -284,6 +358,10 @@ public class WebService {
 			url = url + "&lang=" + searchCriteria.getLanguage();
 		}
 
+		if (searchCriteria.getFeatureClass() != null) {
+			url = url + "&featureClass=" + searchCriteria.getFeatureClass();
+		}
+
 		if (searchCriteria.getFeatureCodes() != null) {
 			for (String featureCode : searchCriteria.getFeatureCodes()) {
 				url = url + "&fcode=" + featureCode;
@@ -317,7 +395,8 @@ public class WebService {
 			Toponym toponym = new Toponym();
 
 			toponym.setName(toponymElement.getChildText("name"));
-			toponym.setAlternateNames(toponymElement.getChildText("alternateNames"));
+			toponym.setAlternateNames(toponymElement
+					.getChildText("alternateNames"));
 			toponym.setLatitude(Double.parseDouble(toponymElement
 					.getChildText("lat")));
 			toponym.setLongitude(Double.parseDouble(toponymElement

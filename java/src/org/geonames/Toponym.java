@@ -245,4 +245,21 @@ public class Toponym {
 		this.alternateNames = alternateNames;
 	}
 
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append("geonameId=" + geonameId + ",");
+		str.append("name=" + name + ",");
+		if (alternateNames != null) {
+			str.append("alternateNames=" + alternateNames + ",");
+		}
+		str.append("latitude=" + latitude + ",");
+		str.append("longitude=" + longitude + ",");
+		str.append("countryCode=" + countryCode + ",");
+		str.append("population=" + population + ",");
+		str.append("elevation=" + elevation + ",");
+		str.append("featureClass=" + featureClass + ",");
+		str.append("featureCode=" + featureCode);
+		return str.toString();
+	}
+
 }
