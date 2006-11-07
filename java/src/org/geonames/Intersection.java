@@ -17,6 +17,8 @@
 package org.geonames;
 
 /**
+ * an intersection between two streets
+ * 
  * @author Mark Thomas
  * 
  */

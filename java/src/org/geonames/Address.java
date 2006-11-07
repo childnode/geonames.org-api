@@ -17,6 +17,8 @@
 package org.geonames;
 
 /**
+ * a street address
+ * 
  * @author Mark Thomas
  * 
  */

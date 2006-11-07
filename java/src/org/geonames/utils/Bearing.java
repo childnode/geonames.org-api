@@ -23,13 +23,16 @@ import static java.lang.Math.toRadians;
 import static java.lang.Math.toDegrees;
 
 /**
+ * compass bearing from the first point to the second point in degrees.
+ * 
  * @author Mark Thomas
  */
 public class Bearing {
 
 	/**
 	 * Returns the direction from the first point to the second point in
-	 * degrees.
+	 * degrees. The direction is the clockwise angle between the magnetic north
+	 * and the direction from point1 to point2
 	 * 
 	 * @param lat1
 	 * @param lng1
