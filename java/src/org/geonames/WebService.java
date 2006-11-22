@@ -56,8 +56,10 @@ public class WebService {
 
 		String url = GEONAMES_SERVER + "/postalCodeSearch?";
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
-			url = url + "postalcode="
-					+ postalCodeSearchCriteria.getPostalCode();
+			url = url
+					+ "postalcode="
+					+ URLEncoder.encode(postalCodeSearchCriteria
+							.getPostalCode(), "UTF8");
 		}
 		if (postalCodeSearchCriteria.getPlaceName() != null) {
 			if (!url.endsWith("&")) {
@@ -285,9 +287,10 @@ public class WebService {
 			intersection.setStreet1(e.getChildText("street1"));
 			intersection.setStreet2(e.getChildText("street2"));
 			intersection.setLatitude(Double.parseDouble(e.getChildText("lat")));
-			intersection.setLongitude(Double.parseDouble(e.getChildText("lng")));
 			intersection
-					.setDistance(Double.parseDouble(e.getChildText("distance")));
+					.setLongitude(Double.parseDouble(e.getChildText("lng")));
+			intersection.setDistance(Double.parseDouble(e
+					.getChildText("distance")));
 			intersection.setPostalCode(e.getChildText("postalcode"));
 			intersection.setPlaceName(e.getChildText("placename"));
 			intersection.setCountryCode(e.getChildText("countryCode"));
