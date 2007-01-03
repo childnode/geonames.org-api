@@ -572,6 +572,42 @@ public class WebService {
 	}
 
 	/**
+	 * get the timezone for a given location
+	 * @param latitude
+	 * @param longitude
+	 * @return timezone at the given location
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static Timezone timezone(double latitude, double longitude)
+			throws IOException, Exception {
+
+		String url = GEONAMES_SERVER + "/timezone?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+
+		URLConnection conn = new URL(url).openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(conn.getInputStream());
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("timezone")) {
+			Element codeElement = (Element) obj;
+			Timezone timezone = new Timezone();
+			timezone.setTimezoneId(codeElement.getChildText("timezoneId"));
+			timezone.setGmtOffset(Double.parseDouble(codeElement
+					.getChildText("gmtOffset")));
+			timezone.setDstOffset(Double.parseDouble(codeElement
+					.getChildText("dstOffset")));
+			return timezone;
+		}
+
+		return null;
+	}
+
+	/**
 	 * @return the geonamesServer, default is http://ws.geonames.org
 	 */
 	public static String getGeonamesServer() {
