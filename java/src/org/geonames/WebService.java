@@ -356,6 +356,10 @@ public class WebService {
 		if (searchCriteria.getCountryCode() != null) {
 			url = url + "&country=" + searchCriteria.getCountryCode();
 		}
+		
+		if (searchCriteria.getAdminCode1() != null) {
+			url = url + "&adminCode1=" + searchCriteria.getAdminCode1();
+		}
 
 		if (searchCriteria.getLanguage() != null) {
 			url = url + "&lang=" + searchCriteria.getLanguage();
@@ -573,6 +577,7 @@ public class WebService {
 
 	/**
 	 * get the timezone for a given location
+	 * 
 	 * @param latitude
 	 * @param longitude
 	 * @return timezone at the given location
