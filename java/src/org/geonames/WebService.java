@@ -37,7 +37,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class WebService {
 
-	private static String USER_AGENT = "geonames webservice client 0.1";
+	private static String USER_AGENT = "geonames webservice client 0.3";
 
 	private static String GEONAMES_SERVER = "http://ws.geonames.org";
 
@@ -78,6 +78,9 @@ public class WebService {
 		}
 		if (postalCodeSearchCriteria.getMaxRows() > 0) {
 			url = url + "&maxRows=" + postalCodeSearchCriteria.getMaxRows();
+		}
+		if (postalCodeSearchCriteria.isOROperator()) {
+			url = url + "&operator=OR";
 		}
 
 		URLConnection conn = new URL(url).openConnection();
@@ -356,7 +359,7 @@ public class WebService {
 		if (searchCriteria.getCountryCode() != null) {
 			url = url + "&country=" + searchCriteria.getCountryCode();
 		}
-		
+
 		if (searchCriteria.getAdminCode1() != null) {
 			url = url + "&adminCode1=" + searchCriteria.getAdminCode1();
 		}

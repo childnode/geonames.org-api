@@ -33,10 +33,12 @@ public class PostalCodeSearchCriteria {
 	private Double latitude;
 
 	private Double longitude;
-	
+
 	private Style style;
 
 	private int maxRows;
+
+	private boolean isOROperator = false;
 
 	/**
 	 * @return Returns the style.
@@ -46,7 +48,8 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param style The style to set.
+	 * @param style
+	 *            The style to set.
 	 */
 	public void setStyle(Style style) {
 		this.style = style;
@@ -60,9 +63,14 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param countryCode The countryCode to set.
+	 * @param countryCode
+	 *            The countryCode to set.
 	 */
-	public void setCountryCode(String countryCode) {
+	public void setCountryCode(String countryCode)
+			throws InvalidParameterException {
+		if (countryCode != null && countryCode.length() != 2) {
+			throw new InvalidParameterException("invalid country code");
+		}
 		this.countryCode = countryCode;
 	}
 
@@ -74,9 +82,13 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param latitude The latitude to set.
+	 * @param latitude
+	 *            The latitude to set.
 	 */
-	public void setLatitude(double latitude) {
+	public void setLatitude(double latitude) throws InvalidParameterException {
+		if (latitude > 90.0 || latitude < -90.0) {
+			throw new InvalidParameterException("invalid latitude " + latitude);
+		}
 		this.latitude = new Double(latitude);
 	}
 
@@ -88,9 +100,14 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param longitude The longitude to set.
+	 * @param longitude
+	 *            The longitude to set.
 	 */
-	public void setLongitude(double longitude) {
+	public void setLongitude(double longitude) throws InvalidParameterException {
+		if (longitude > 180.0 || longitude < -180.0) {
+			throw new InvalidParameterException("invalid longitude "
+					+ longitude);
+		}
 		this.longitude = new Double(longitude);
 	}
 
@@ -102,7 +119,8 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param placeName The placeName to set.
+	 * @param placeName
+	 *            The placeName to set.
 	 */
 	public void setPlaceName(String placeName) {
 		this.placeName = placeName;
@@ -116,7 +134,8 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param postalCode The postalCode to set.
+	 * @param postalCode
+	 *            The postalCode to set.
 	 */
 	public void setPostalCode(String postalCode) {
 		this.postalCode = postalCode;
@@ -130,10 +149,26 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param maxRows the maxRows to set
+	 * @param maxRows
+	 *            the maxRows to set
 	 */
 	public void setMaxRows(int maxRows) {
 		this.maxRows = maxRows;
+	}
+
+	/**
+	 * @param isOROperator
+	 *            the isOROperator to set
+	 */
+	public void setOROperator(boolean isOROperator) {
+		this.isOROperator = isOROperator;
+	}
+
+	/**
+	 * @return the isOROperator
+	 */
+	public boolean isOROperator() {
+		return isOROperator;
 	}
 
 }
