@@ -70,6 +70,13 @@ public class WebService {
 					+ URLEncoder.encode(
 							postalCodeSearchCriteria.getPlaceName(), "UTF8");
 		}
+		if (postalCodeSearchCriteria.getAdminCode1() != null) {
+			url = url
+					+ "&adminCode1="
+					+ URLEncoder.encode(postalCodeSearchCriteria
+							.getAdminCode1(), "UTF8");
+		}
+
 		if (postalCodeSearchCriteria.getCountryCode() != null) {
 			if (!url.endsWith("&")) {
 				url = url + "&";
@@ -95,6 +102,7 @@ public class WebService {
 			code.setPostalCode(codeElement.getChildText("postalcode"));
 			code.setPlaceName(codeElement.getChildText("name"));
 			code.setCountryCode(codeElement.getChildText("countryCode"));
+			code.setAdminCode1(codeElement.getChildText("adminCode1"));
 
 			code.setLatitude(Double
 					.parseDouble(codeElement.getChildText("lat")));
@@ -361,7 +369,8 @@ public class WebService {
 		}
 
 		if (searchCriteria.getAdminCode1() != null) {
-			url = url + "&adminCode1=" + searchCriteria.getAdminCode1();
+			url = url + "&adminCode1="
+					+ URLEncoder.encode(searchCriteria.getAdminCode1(), "UTF8");
 		}
 
 		if (searchCriteria.getLanguage() != null) {

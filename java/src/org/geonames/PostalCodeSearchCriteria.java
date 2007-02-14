@@ -28,6 +28,8 @@ public class PostalCodeSearchCriteria {
 
 	private String placeName;
 
+	private String adminCode1;
+
 	private String countryCode;
 
 	private Double latitude;
@@ -169,6 +171,20 @@ public class PostalCodeSearchCriteria {
 	 */
 	public boolean isOROperator() {
 		return isOROperator;
+	}
+
+	/**
+	 * @return the adminCode1
+	 */
+	public String getAdminCode1() {
+		return adminCode1;
+	}
+
+	/**
+	 * @param adminCode1 the adminCode1 to set
+	 */
+	public void setAdminCode1(String adminCode1) {
+		this.adminCode1 = adminCode1;
 	}
 
 }
