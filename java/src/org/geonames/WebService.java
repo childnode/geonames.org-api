@@ -103,6 +103,9 @@ public class WebService {
 			code.setPlaceName(codeElement.getChildText("name"));
 			code.setCountryCode(codeElement.getChildText("countryCode"));
 			code.setAdminCode1(codeElement.getChildText("adminCode1"));
+			code.setAdminCode2(codeElement.getChildText("adminCode2"));
+			code.setAdminName1(codeElement.getChildText("adminName1"));
+			code.setAdminName2(codeElement.getChildText("adminName2"));
 
 			code.setLatitude(Double
 					.parseDouble(codeElement.getChildText("lat")));
