@@ -375,6 +375,14 @@ public class WebService {
 			url = url + "&adminCode1="
 					+ URLEncoder.encode(searchCriteria.getAdminCode1(), "UTF8");
 		}
+		if (searchCriteria.getAdminCode2() != null) {
+			url = url + "&adminCode2="
+					+ URLEncoder.encode(searchCriteria.getAdminCode2(), "UTF8");
+		}
+		if (searchCriteria.getAdminCode3() != null) {
+			url = url + "&adminCode3="
+					+ URLEncoder.encode(searchCriteria.getAdminCode3(), "UTF8");
+		}
 
 		if (searchCriteria.getLanguage() != null) {
 			url = url + "&lang=" + searchCriteria.getLanguage();
