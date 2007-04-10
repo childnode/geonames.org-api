@@ -153,6 +153,10 @@ public class WebService {
 			url = url + "&maxRows=" + postalCodeSearchCriteria.getMaxRows();
 		}
 
+		if (postalCodeSearchCriteria.getRadius() > 0) {
+			url = url + "&radius=" + postalCodeSearchCriteria.getRadius();
+		}
+
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();

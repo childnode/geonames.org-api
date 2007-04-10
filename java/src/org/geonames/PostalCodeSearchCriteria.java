@@ -36,6 +36,8 @@ public class PostalCodeSearchCriteria {
 
 	private Double longitude;
 
+	private double radius;
+
 	private Style style;
 
 	private int maxRows;
@@ -181,10 +183,28 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param adminCode1 the adminCode1 to set
+	 * @param adminCode1
+	 *            the adminCode1 to set
 	 */
 	public void setAdminCode1(String adminCode1) {
 		this.adminCode1 = adminCode1;
+	}
+
+	/**
+	 * the radius in km to be used for reverse geocoding.
+	 * 
+	 * @param radius
+	 *            the radius to set
+	 */
+	public void setRadius(double radius) {
+		this.radius = radius;
+	}
+
+	/**
+	 * @return the radius
+	 */
+	public double getRadius() {
+		return radius;
 	}
 
 }
