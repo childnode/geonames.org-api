@@ -99,6 +99,10 @@ public class ToponymSearchCriteria {
 		this.featureCodes = featureCodes;
 	}
 
+	public void setFeatureCode(String featureCode) {
+		this.featureCodes = new String[] { featureCode };
+	}
+
 	/**
 	 * @return Returns the language.
 	 */
