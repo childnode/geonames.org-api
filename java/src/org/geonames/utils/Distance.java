@@ -58,10 +58,27 @@ public class Distance {
 		double d = Math.acos(Math.cos(a1) * Math.cos(b1) * Math.cos(a2)
 				* Math.cos(b2) + Math.cos(a1) * Math.sin(b1) * Math.cos(a2)
 				* Math.sin(b2) + Math.sin(a1) * Math.sin(a2));
+
+		double dist = 0;
 		if (unit == 'M') {
-			return d * EARTH_RADIUS_MILES;
+			dist = d * EARTH_RADIUS_MILES;
+		} else {
+			dist = d * EARTH_RADIUS_KM;
 		}
-		return d * EARTH_RADIUS_KM;
+
+		if (Double.isNaN(dist)) {
+			// use pytagoras for very small distances, 
+			dist = Math.sqrt(Math.pow(Math.abs(lat1 - lat2), 2)
+					+ Math.pow(Math.abs(lng1 - lng2), 2));
+			// as rule of thumb multiply with 110km =1 degree
+			if (unit == 'M') {
+				dist *= 69;
+			} else {
+				dist *= 110;
+			}
+		}
+
+		return dist;
 	}
 
 	public static double distanceKM(double lat1, double lng1, double lat2,
