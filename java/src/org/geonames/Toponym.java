@@ -57,6 +57,8 @@ public class Toponym {
 	private String adminCode3;
 
 	private String adminCode4;
+	
+	private Timezone timezone;
 
 	/**
 	 * @return Returns the countryCode.
@@ -328,6 +330,20 @@ public class Toponym {
 	 */
 	public void setAdminCode4(String adminCode4) {
 		this.adminCode4 = adminCode4;
+	}
+
+	/**
+	 * @return the timezone
+	 */
+	public Timezone getTimezone() {
+		return timezone;
+	}
+
+	/**
+	 * @param timezone the timezone to set
+	 */
+	public void setTimezone(Timezone timezone) {
+		this.timezone = timezone;
 	}
 
 }
