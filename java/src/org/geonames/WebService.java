@@ -37,7 +37,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class WebService {
 
-	private static String USER_AGENT = "geonames webservice client 0.3";
+	private static String USER_AGENT = "geonames webservice client 0.5";
 
 	private static String GEONAMES_SERVER = "http://ws.geonames.org";
 
@@ -262,6 +262,9 @@ public class WebService {
 		for (Object obj : root.getChildren("address")) {
 			Element codeElement = (Element) obj;
 			Address address = new Address();
+			address.setStreet(codeElement.getChildText("street"));
+			address.setStreetNumber(codeElement.getChildText("streetNumber"));
+
 			address.setPostalCode(codeElement.getChildText("postalcode"));
 			address.setPlaceName(codeElement.getChildText("name"));
 			address.setCountryCode(codeElement.getChildText("countryCode"));
@@ -287,11 +290,19 @@ public class WebService {
 
 	public static Intersection findNearestIntersection(double latitude,
 			double longitude) throws Exception {
+		return findNearestIntersection(latitude, longitude, 0);
+	}
+
+	public static Intersection findNearestIntersection(double latitude,
+			double longitude, double radius) throws Exception {
 
 		String url = GEONAMES_SERVER + "/findNearestIntersection?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -318,6 +329,55 @@ public class WebService {
 			return intersection;
 		}
 		return null;
+	}
+
+	public static List<StreetSegment> findNearbyStreets(double latitude,
+			double longitude, double radius) throws Exception {
+
+		String url = GEONAMES_SERVER + "/findNearbyStreets?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
+
+		List<StreetSegment> segments = new ArrayList<StreetSegment>();
+
+		URLConnection conn = new URL(url).openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(conn.getInputStream());
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("streetSegment")) {
+			Element e = (Element) obj;
+			StreetSegment streetSegment = new StreetSegment();
+			String line = e.getChildText("line");
+			String[] points = line.split(",");
+			double[] latArray = new double[points.length];
+			double[] lngArray = new double[points.length];
+			for (int i = 0; i < points.length; i++) {
+				String[] coords = points[i].split(" ");
+				lngArray[i] = Double.parseDouble(coords[0]);
+				latArray[i] = Double.parseDouble(coords[1]);
+			}
+
+			streetSegment.setCfcc(e.getChildText("cfcc"));
+			streetSegment.setName(e.getChildText("name"));
+			streetSegment.setFraddl(e.getChildText("fraddl"));
+			streetSegment.setFraddr(e.getChildText("fraddr"));
+			streetSegment.setToaddl(e.getChildText("toaddl"));
+			streetSegment.setToaddr(e.getChildText("toaddr"));
+			streetSegment.setPostalCode(e.getChildText("postalcode"));
+			streetSegment.setPlaceName(e.getChildText("placename"));
+			streetSegment.setCountryCode(e.getChildText("countryCode"));
+			streetSegment.setAdminName2(e.getChildText("adminName2"));
+			streetSegment.setAdminCode1(e.getChildText("adminCode1"));
+			streetSegment.setAdminName1(e.getChildText("adminName1"));
+			segments.add(streetSegment);
+		}
+		return segments;
 	}
 
 	public static ToponymSearchResult search(String q, String countryCode,
@@ -423,6 +483,7 @@ public class WebService {
 
 		searchResult.totalResultsCount = Integer.parseInt(root
 				.getChildText("totalResultsCount"));
+		searchResult.setStyle(Style.valueOf(root.getAttributeValue("style")));
 
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
@@ -464,6 +525,17 @@ public class WebService {
 			toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
 			toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
 			toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
+
+			Element timezoneElement = toponymElement.getChild("timezone");
+			if (timezoneElement != null) {
+				Timezone timezone = new Timezone();
+				timezone.setTimezoneId(timezoneElement.getValue());
+				timezone.setDstOffset(Double.parseDouble(timezoneElement
+						.getAttributeValue("dstOffset")));
+				timezone.setGmtOffset(Double.parseDouble(timezoneElement
+						.getAttributeValue("gmtOffset")));
+				toponym.setTimezone(timezone);
+			}
 
 			searchResult.toponyms.add(toponym);
 		}
