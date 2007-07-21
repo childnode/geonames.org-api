@@ -30,6 +30,8 @@ public class ToponymSearchResult {
 	List<Toponym> toponyms = new ArrayList<Toponym>();
 
 	int totalResultsCount;
+	
+	Style style;
 
 	/**
 	 * @return Returns the toponyms.
@@ -59,6 +61,20 @@ public class ToponymSearchResult {
 	 */
 	public void setTotalResultsCount(int totalResultsCount) {
 		this.totalResultsCount = totalResultsCount;
+	}
+
+	/**
+	 * @return the style
+	 */
+	public Style getStyle() {
+		return style;
+	}
+
+	/**
+	 * @param style the style to set
+	 */
+	public void setStyle(Style style) {
+		this.style = style;
 	}
 
 }
