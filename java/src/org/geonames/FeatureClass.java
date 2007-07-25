@@ -56,5 +56,12 @@ public enum FeatureClass {
 	/**
 	 * Vegetation Features
 	 */
-	V
+	V;
+
+	public static FeatureClass fromValue(String value) {
+		if (value == null || "".equals(value)) {
+			return null;
+		}
+		return valueOf(value);
+	}
 }

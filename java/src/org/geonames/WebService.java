@@ -222,7 +222,7 @@ public class WebService {
 
 			toponym.setCountryCode(toponymElement.getChildText("countryCode"));
 			toponym.setCountryName(toponymElement.getChildText("countryName"));
-			toponym.setFeatureClass(FeatureClass.valueOf(toponymElement
+			toponym.setFeatureClass(FeatureClass.fromValue(toponymElement
 					.getChildText("fcl")));
 			toponym.setFeatureCode(toponymElement.getChildText("fcode"));
 
@@ -509,7 +509,8 @@ public class WebService {
 
 			toponym.setCountryCode(toponymElement.getChildText("countryCode"));
 			toponym.setCountryName(toponymElement.getChildText("countryName"));
-			toponym.setFeatureClass(FeatureClass.valueOf(toponymElement
+
+			toponym.setFeatureClass(FeatureClass.fromValue(toponymElement
 					.getChildText("fcl")));
 			toponym.setFeatureCode(toponymElement.getChildText("fcode"));
 
