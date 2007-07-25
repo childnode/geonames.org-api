@@ -38,7 +38,7 @@ public class Toponym {
 
 	private int elevation;
 
-	private String featureClass;
+	private FeatureClass featureClass;
 
 	private String featureClassName;
 
@@ -57,7 +57,7 @@ public class Toponym {
 	private String adminCode3;
 
 	private String adminCode4;
-	
+
 	private Timezone timezone;
 
 	/**
@@ -93,7 +93,7 @@ public class Toponym {
 	/**
 	 * @return Returns the featureClass.
 	 */
-	public String getFeatureClass() {
+	public FeatureClass getFeatureClass() {
 		return featureClass;
 	}
 
@@ -101,7 +101,7 @@ public class Toponym {
 	 * @param featureClass
 	 *            The featureClass to set.
 	 */
-	public void setFeatureClass(String featureClass) {
+	public void setFeatureClass(FeatureClass featureClass) {
 		this.featureClass = featureClass;
 	}
 
@@ -340,7 +340,8 @@ public class Toponym {
 	}
 
 	/**
-	 * @param timezone the timezone to set
+	 * @param timezone
+	 *            the timezone to set
 	 */
 	public void setTimezone(Timezone timezone) {
 		this.timezone = timezone;

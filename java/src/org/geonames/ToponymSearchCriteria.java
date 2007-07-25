@@ -40,7 +40,7 @@ public class ToponymSearchCriteria {
 
 	private Style style;
 
-	private String featureClass;
+	private FeatureClass featureClass;
 
 	private String[] featureCodes;
 
@@ -228,7 +228,7 @@ public class ToponymSearchCriteria {
 	/**
 	 * @return the featureClass
 	 */
-	public String getFeatureClass() {
+	public FeatureClass getFeatureClass() {
 		return featureClass;
 	}
 
@@ -236,7 +236,7 @@ public class ToponymSearchCriteria {
 	 * @param featureClass
 	 *            the featureClass to set
 	 */
-	public void setFeatureClass(String featureClass) {
+	public void setFeatureClass(FeatureClass featureClass) {
 		this.featureClass = featureClass;
 	}
 
