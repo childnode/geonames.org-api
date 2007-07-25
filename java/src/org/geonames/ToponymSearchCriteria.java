@@ -50,6 +50,8 @@ public class ToponymSearchCriteria {
 
 	private String adminCode3;
 
+	private String adminCode4;
+
 	private int maxRows;
 
 	private int startRow;
@@ -281,6 +283,14 @@ public class ToponymSearchCriteria {
 	 */
 	public void setAdminCode3(String adminCode3) {
 		this.adminCode3 = adminCode3;
+	}
+
+	public String getAdminCode4() {
+		return adminCode4;
+	}
+
+	public void setAdminCode4(String adminCode4) {
+		this.adminCode4 = adminCode4;
 	}
 
 }
