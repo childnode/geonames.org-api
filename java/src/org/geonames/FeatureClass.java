@@ -17,6 +17,8 @@
 package org.geonames;
 
 /**
+ * Enumeration for the GeoNames feature classes A,H,L,P,R,S,T,U,V
+ * 
  * @author marc
  * 
  */

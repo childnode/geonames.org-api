@@ -37,7 +37,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class WebService {
 
-	private static String USER_AGENT = "geonames webservice client 0.5";
+	private static String USER_AGENT = "geonames webservice client 0.6";
 
 	private static String GEONAMES_SERVER = "http://ws.geonames.org";
 
@@ -193,12 +193,24 @@ public class WebService {
 
 	public static List<Toponym> findNearbyPlaceName(double latitude,
 			double longitude) throws IOException, Exception {
+		return findNearbyPlaceName(latitude, longitude, 0, 0);
+	}
+
+	public static List<Toponym> findNearbyPlaceName(double latitude,
+			double longitude, double radius, int maxRows) throws IOException,
+			Exception {
 		List<Toponym> places = new ArrayList<Toponym>();
 
 		String url = GEONAMES_SERVER + "/findNearbyPlaceName?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
+		if (maxRows > 0) {
+			url = url + "&maxRows=" + maxRows;
+		}
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
