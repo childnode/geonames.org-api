@@ -1,15 +1,31 @@
+/*
+ * Copyright 2007 Marc Wick, geonames.org
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.geonames.wikipedia;
 
 import junit.framework.TestCase;
 
+/**
+ * @author marc
+ * 
+ */
 public class TextSummaryExtractorTest extends TestCase {
 
-	public static void testExtraction() {
+	public static void testSkipHTML() {
 		String text = TextSummaryExtractor.extractSummary(
-				"{{Dieser Artikel|erl{}äutert die kreisfrei}}Anfang", 200);
-		assertEquals(text, "Anfang");
-
-		text = TextSummaryExtractor.extractSummary(
 				"<!--schweizbezogen-->Anfang", 200);
 		assertEquals(text, "Anfang");
 
@@ -17,8 +33,17 @@ public class TextSummaryExtractorTest extends TestCase {
 				.extractSummary(
 						"<div style=\"float:right;width:200px;padding-left:5px\"> <center> Germany. ",
 						200);
-		System.out.println(text);
 		assertEquals(text, "Germany.");
+
+	}
+
+	public static void testTemplate() {
+		String text = TextSummaryExtractor.extractSummary(
+				"{{Dieser Artikel|erl{}äutert die kreisfrei}}Anfang", 200);
+		assertEquals(text, "Anfang");
+	}
+
+	public static void testLinks() {
 
 		String link = TextSummaryExtractor.extractSummary("[[anchor]]", 200);
 		assertEquals(link, "anchor");
