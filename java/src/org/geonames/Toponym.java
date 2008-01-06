@@ -51,8 +51,12 @@ public class Toponym {
 	private double longitude;
 
 	private String adminCode1;
+	
+	private String adminName1;
 
 	private String adminCode2;
+	
+	private String adminName2;
 
 	private String adminCode3;
 
@@ -345,6 +349,36 @@ public class Toponym {
 	 */
 	public void setTimezone(Timezone timezone) {
 		this.timezone = timezone;
+	}
+
+	/**
+	 * @return the adminName1
+	 */
+	public String getAdminName1() {
+		return adminName1;
+	}
+
+	/**
+	 * @param adminName1
+	 *            the adminName1 to set
+	 */
+	public void setAdminName1(String adminName1) {
+		this.adminName1 = adminName1;
+	}
+
+	/**
+	 * @return the adminName2
+	 */
+	public String getAdminName2() {
+		return adminName2;
+	}
+
+	/**
+	 * @param adminName2
+	 *            the adminName2 to set
+	 */
+	public void setAdminName2(String adminName2) {
+		this.adminName2 = adminName2;
 	}
 
 }

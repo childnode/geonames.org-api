@@ -541,6 +541,7 @@ public class WebService {
 			}
 
 			toponym.setAdminCode1(toponymElement.getChildText("adminCode1"));
+			toponym.setAdminName1(toponymElement.getChildText("adminName1"));
 			toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
 			toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
 			toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
