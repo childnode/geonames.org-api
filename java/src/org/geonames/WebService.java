@@ -39,7 +39,7 @@ public class WebService {
 
 	private static String USER_AGENT = "geonames webservice client 0.6";
 
-	private static String GEONAMES_SERVER = "http://ws.geonames.org";
+	private static String geoNamesServer = "http://ws.geonames.org";
 
 	/**
 	 * user name to pass to commercial web services for authentication and
@@ -58,7 +58,7 @@ public class WebService {
 		}
 		return url;
 	}
-	
+
 	public static List<PostalCode> postalCodeSearch(String postalCode,
 			String placeName, String countryCode) throws Exception {
 		PostalCodeSearchCriteria postalCodeSearchCriteria = new PostalCodeSearchCriteria();
@@ -72,7 +72,7 @@ public class WebService {
 			PostalCodeSearchCriteria postalCodeSearchCriteria) throws Exception {
 		List<PostalCode> postalCodes = new ArrayList<PostalCode>();
 
-		String url = GEONAMES_SERVER + "/postalCodeSearch?";
+		String url = geoNamesServer + "/postalCodeSearch?";
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "postalcode="
@@ -142,7 +142,7 @@ public class WebService {
 
 		List<PostalCode> postalCodes = new ArrayList<PostalCode>();
 
-		String url = GEONAMES_SERVER + "/findNearbyPostalCodes?";
+		String url = geoNamesServer + "/findNearbyPostalCodes?";
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "&postalcode="
@@ -221,7 +221,7 @@ public class WebService {
 			Exception {
 		List<Toponym> places = new ArrayList<Toponym>();
 
-		String url = GEONAMES_SERVER + "/findNearbyPlaceName?";
+		String url = geoNamesServer + "/findNearbyPlaceName?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -282,7 +282,7 @@ public class WebService {
 	public static Address findNearestAddress(double latitude, double longitude)
 			throws IOException, Exception {
 
-		String url = GEONAMES_SERVER + "/findNearestAddress?";
+		String url = geoNamesServer + "/findNearestAddress?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -331,7 +331,7 @@ public class WebService {
 	public static Intersection findNearestIntersection(double latitude,
 			double longitude, double radius) throws Exception {
 
-		String url = GEONAMES_SERVER + "/findNearestIntersection?";
+		String url = geoNamesServer + "/findNearestIntersection?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -370,7 +370,7 @@ public class WebService {
 	public static List<StreetSegment> findNearbyStreets(double latitude,
 			double longitude, double radius) throws Exception {
 
-		String url = GEONAMES_SERVER + "/findNearbyStreets?";
+		String url = geoNamesServer + "/findNearbyStreets?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -442,7 +442,7 @@ public class WebService {
 			ToponymSearchCriteria searchCriteria) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
 
-		String url = GEONAMES_SERVER + "/search?";
+		String url = geoNamesServer + "/search?";
 
 		if (searchCriteria.getQ() != null) {
 			url = url + "q=" + URLEncoder.encode(searchCriteria.getQ(), "UTF8");
@@ -596,7 +596,7 @@ public class WebService {
 		}
 
 		// FIXME proper url
-		String url = GEONAMES_SERVER + "/servlet/geonames?srv=61";
+		String url = geoNamesServer + "/servlet/geonames?srv=61";
 
 		url = url + "&geonameId=" + toponym.getGeonameId();
 		url = addUserName(url);
@@ -633,7 +633,7 @@ public class WebService {
 
 		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
 
-		String url = GEONAMES_SERVER + "/findNearbyWikipedia?";
+		String url = geoNamesServer + "/findNearbyWikipedia?";
 
 		url = url + "lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -695,7 +695,7 @@ public class WebService {
 	 */
 	public static int gtopo30(double latitude, double longitude)
 			throws IOException {
-		String url = GEONAMES_SERVER + "/gtopo30?lat=" + latitude + "&lng="
+		String url = geoNamesServer + "/gtopo30?lat=" + latitude + "&lng="
 				+ longitude;
 		url = addUserName(url);
 		URL geonamesWebservice = new URL(url);
@@ -719,7 +719,7 @@ public class WebService {
 	 */
 	public static String countryCode(double latitude, double longitude)
 			throws IOException {
-		String url = GEONAMES_SERVER + "/countrycode?lat=" + latitude + "&lng="
+		String url = geoNamesServer + "/countrycode?lat=" + latitude + "&lng="
 				+ longitude;
 		url = addUserName(url);
 		URL geonamesWebservice = new URL(url);
@@ -745,7 +745,7 @@ public class WebService {
 	public static Timezone timezone(double latitude, double longitude)
 			throws IOException, Exception {
 
-		String url = GEONAMES_SERVER + "/timezone?";
+		String url = geoNamesServer + "/timezone?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -772,18 +772,25 @@ public class WebService {
 	}
 
 	/**
-	 * @return the geonamesServer, default is http://ws.geonames.org
+	 * @return the geoNamesServer, default is http://ws.geonames.org
 	 */
-	public static String getGeonamesServer() {
-		return GEONAMES_SERVER;
+	public static String getGeoNamesServer() {
+		return geoNamesServer;
 	}
 
 	/**
-	 * @param geonamesServer
+	 * @param geoNamesServer
 	 *            the geonamesServer to set
 	 */
-	public static void setGeonamesServer(String geonamesServer) {
-		GEONAMES_SERVER = geonamesServer;
+	public static void setGeoNamesServer(String pGeoNamesServer) {
+		if (pGeoNamesServer == null) {
+			throw new Error();
+		}
+		pGeoNamesServer = pGeoNamesServer.trim().toLowerCase();
+		if (!pGeoNamesServer.startsWith("http://")) {
+			pGeoNamesServer += "http://";
+		}
+		geoNamesServer = pGeoNamesServer;
 	}
 
 	/**
@@ -815,7 +822,5 @@ public class WebService {
 	public static void setToken(String token) {
 		WebService.token = token;
 	}
-
-
 
 }
