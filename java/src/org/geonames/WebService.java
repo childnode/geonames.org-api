@@ -41,6 +41,24 @@ public class WebService {
 
 	private static String GEONAMES_SERVER = "http://ws.geonames.org";
 
+	/**
+	 * user name to pass to commercial web services for authentication and
+	 * authorization
+	 */
+	private static String userName;
+
+	private static String token;
+
+	private static String addUserName(String url) {
+		if (userName != null) {
+			url = url + "&userName=" + userName;
+		}
+		if (token != null) {
+			url = url + "&token=" + token;
+		}
+		return url;
+	}
+	
 	public static List<PostalCode> postalCodeSearch(String postalCode,
 			String placeName, String countryCode) throws Exception {
 		PostalCodeSearchCriteria postalCodeSearchCriteria = new PostalCodeSearchCriteria();
@@ -89,6 +107,7 @@ public class WebService {
 		if (postalCodeSearchCriteria.isOROperator()) {
 			url = url + "&operator=OR";
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -156,6 +175,7 @@ public class WebService {
 		if (postalCodeSearchCriteria.getRadius() > 0) {
 			url = url + "&radius=" + postalCodeSearchCriteria.getRadius();
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -211,6 +231,7 @@ public class WebService {
 		if (maxRows > 0) {
 			url = url + "&maxRows=" + maxRows;
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -265,6 +286,7 @@ public class WebService {
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -316,6 +338,7 @@ public class WebService {
 		if (radius > 0) {
 			url = url + "&radius=" + radius;
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -354,6 +377,7 @@ public class WebService {
 		if (radius > 0) {
 			url = url + "&radius=" + radius;
 		}
+		url = addUserName(url);
 
 		List<StreetSegment> segments = new ArrayList<StreetSegment>();
 
@@ -488,6 +512,7 @@ public class WebService {
 		if (searchCriteria.getStyle() != null) {
 			url = url + "&style=" + searchCriteria.getStyle();
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -543,6 +568,7 @@ public class WebService {
 			toponym.setAdminCode1(toponymElement.getChildText("adminCode1"));
 			toponym.setAdminName1(toponymElement.getChildText("adminName1"));
 			toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
+			toponym.setAdminName2(toponymElement.getChildText("adminName2"));
 			toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
 			toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
 
@@ -573,6 +599,7 @@ public class WebService {
 		String url = GEONAMES_SERVER + "/servlet/geonames?srv=61";
 
 		url = url + "&geonameId=" + toponym.getGeonameId();
+		url = addUserName(url);
 
 		StringBuilder tagsCommaseparated = new StringBuilder();
 		for (String tag : tags) {
@@ -614,6 +641,7 @@ public class WebService {
 		if (language != null) {
 			url = url + "&lang=" + language;
 		}
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -667,8 +695,11 @@ public class WebService {
 	 */
 	public static int gtopo30(double latitude, double longitude)
 			throws IOException {
-		URL geonamesWebservice = new URL(GEONAMES_SERVER + "/gtopo30?lat="
-				+ latitude + "&lng=" + longitude);
+		String url = GEONAMES_SERVER + "/gtopo30?lat=" + latitude + "&lng="
+				+ longitude;
+		url = addUserName(url);
+		URL geonamesWebservice = new URL(url);
+
 		URLConnection conn = geonamesWebservice.openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -688,8 +719,11 @@ public class WebService {
 	 */
 	public static String countryCode(double latitude, double longitude)
 			throws IOException {
-		URL geonamesWebservice = new URL(GEONAMES_SERVER + "/countrycode?lat="
-				+ latitude + "&lng=" + longitude);
+		String url = GEONAMES_SERVER + "/countrycode?lat=" + latitude + "&lng="
+				+ longitude;
+		url = addUserName(url);
+		URL geonamesWebservice = new URL(url);
+
 		URLConnection conn = geonamesWebservice.openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -715,6 +749,7 @@ public class WebService {
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
+		url = addUserName(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -750,5 +785,37 @@ public class WebService {
 	public static void setGeonamesServer(String geonamesServer) {
 		GEONAMES_SERVER = geonamesServer;
 	}
+
+	/**
+	 * @return the userName
+	 */
+	public static String getUserName() {
+		return userName;
+	}
+
+	/**
+	 * @param userName
+	 *            the userName to set
+	 */
+	public static void setUserName(String userName) {
+		WebService.userName = userName;
+	}
+
+	/**
+	 * @return the token
+	 */
+	public static String getToken() {
+		return token;
+	}
+
+	/**
+	 * @param token
+	 *            the token to set
+	 */
+	public static void setToken(String token) {
+		WebService.token = token;
+	}
+
+
 
 }
