@@ -41,6 +41,8 @@ public class WebService {
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
+	private static Style defaultStyle = Style.MEDIUM;
+
 	/**
 	 * user name to pass to commercial web services for authentication and
 	 * authorization
@@ -51,10 +53,17 @@ public class WebService {
 
 	private static String addUserName(String url) {
 		if (userName != null) {
-			url = url + "&userName=" + userName;
+			url = url + "&username=" + userName;
 		}
 		if (token != null) {
 			url = url + "&token=" + token;
+		}
+		return url;
+	}
+
+	private static String addDefaultStyle(String url) {
+		if (defaultStyle != Style.MEDIUM) {
+			url = url + "style=" + defaultStyle.name();
 		}
 		return url;
 	}
@@ -232,6 +241,7 @@ public class WebService {
 			url = url + "&maxRows=" + maxRows;
 		}
 		url = addUserName(url);
+		url = addDefaultStyle(url);
 
 		URLConnection conn = new URL(url).openConnection();
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -511,6 +521,8 @@ public class WebService {
 
 		if (searchCriteria.getStyle() != null) {
 			url = url + "&style=" + searchCriteria.getStyle();
+		} else {
+			url = addDefaultStyle(url);
 		}
 		url = addUserName(url);
 
@@ -821,6 +833,21 @@ public class WebService {
 	 */
 	public static void setToken(String token) {
 		WebService.token = token;
+	}
+
+	/**
+	 * @return the defaultStyle
+	 */
+	public static Style getDefaultStyle() {
+		return defaultStyle;
+	}
+
+	/**
+	 * @param defaultStyle
+	 *            the defaultStyle to set
+	 */
+	public static void setDefaultStyle(Style defaultStyle) {
+		WebService.defaultStyle = defaultStyle;
 	}
 
 }
