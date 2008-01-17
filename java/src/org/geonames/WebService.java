@@ -63,7 +63,7 @@ public class WebService {
 
 	private static String addDefaultStyle(String url) {
 		if (defaultStyle != Style.MEDIUM) {
-			url = url + "style=" + defaultStyle.name();
+			url = url + "&style=" + defaultStyle.name();
 		}
 		return url;
 	}
