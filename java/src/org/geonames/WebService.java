@@ -37,7 +37,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class WebService {
 
-	private static String USER_AGENT = "geonames webservice client 0.6";
+	private static String USER_AGENT = "geonames-webservice-client-0.6";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -66,6 +66,62 @@ public class WebService {
 			url = url + "&style=" + defaultStyle.name();
 		}
 		return url;
+	}
+
+	private static Toponym getToponymFromElement(Element toponymElement) {
+		Toponym toponym = new Toponym();
+
+		toponym.setName(toponymElement.getChildText("name"));
+		toponym
+				.setAlternateNames(toponymElement
+						.getChildText("alternateNames"));
+		toponym.setLatitude(Double.parseDouble(toponymElement
+				.getChildText("lat")));
+		toponym.setLongitude(Double.parseDouble(toponymElement
+				.getChildText("lng")));
+
+		String geonameId = toponymElement.getChildText("geonameId");
+		if (geonameId != null) {
+			toponym.setGeonameId(Integer.parseInt(geonameId));
+		}
+
+		toponym.setCountryCode(toponymElement.getChildText("countryCode"));
+		toponym.setCountryName(toponymElement.getChildText("countryName"));
+
+		toponym.setFeatureClass(FeatureClass.fromValue(toponymElement
+				.getChildText("fcl")));
+		toponym.setFeatureCode(toponymElement.getChildText("fcode"));
+
+		toponym.setFeatureClassName(toponymElement.getChildText("fclName"));
+		toponym.setFeatureCodeName(toponymElement.getChildText("fCodeName"));
+
+		String population = toponymElement.getChildText("population");
+		if (population != null && !"".equals(population)) {
+			toponym.setPopulation(Integer.parseInt(population));
+		}
+		String elevation = toponymElement.getChildText("elevation");
+		if (elevation != null && !"".equals(elevation)) {
+			toponym.setElevation(Integer.parseInt(elevation));
+		}
+
+		toponym.setAdminCode1(toponymElement.getChildText("adminCode1"));
+		toponym.setAdminName1(toponymElement.getChildText("adminName1"));
+		toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
+		toponym.setAdminName2(toponymElement.getChildText("adminName2"));
+		toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
+		toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
+
+		Element timezoneElement = toponymElement.getChild("timezone");
+		if (timezoneElement != null) {
+			Timezone timezone = new Timezone();
+			timezone.setTimezoneId(timezoneElement.getValue());
+			timezone.setDstOffset(Double.parseDouble(timezoneElement
+					.getAttributeValue("dstOffset")));
+			timezone.setGmtOffset(Double.parseDouble(timezoneElement
+					.getAttributeValue("gmtOffset")));
+			toponym.setTimezone(timezone);
+		}
+		return toponym;
 	}
 
 	public static List<PostalCode> postalCodeSearch(String postalCode,
@@ -251,38 +307,7 @@ public class WebService {
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
-			Toponym toponym = new Toponym();
-			toponym.setName(toponymElement.getChildText("name"));
-			toponym.setLatitude(Double.parseDouble(toponymElement
-					.getChildText("lat")));
-			toponym.setLongitude(Double.parseDouble(toponymElement
-					.getChildText("lng")));
-
-			String geonameId = toponymElement.getChildText("geonameId");
-			if (geonameId != null) {
-				toponym.setGeonameId(Integer.parseInt(geonameId));
-			}
-
-			toponym.setCountryCode(toponymElement.getChildText("countryCode"));
-			toponym.setCountryName(toponymElement.getChildText("countryName"));
-			toponym.setFeatureClass(FeatureClass.fromValue(toponymElement
-					.getChildText("fcl")));
-			toponym.setFeatureCode(toponymElement.getChildText("fcode"));
-
-			toponym.setFeatureClassName(toponymElement.getChildText("fclName"));
-			toponym
-					.setFeatureCodeName(toponymElement
-							.getChildText("fCodeName"));
-
-			String population = toponymElement.getChildText("population");
-			if (population != null && !"".equals(population)) {
-				toponym.setPopulation(Integer.parseInt(population));
-			}
-			String elevation = toponymElement.getChildText("elevation");
-			if (elevation != null && !"".equals(elevation)) {
-				toponym.setElevation(Integer.parseInt(elevation));
-			}
-
+			Toponym toponym = getToponymFromElement(toponymElement);
 			places.add(toponym);
 		}
 
@@ -541,60 +566,7 @@ public class WebService {
 
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
-			Toponym toponym = new Toponym();
-
-			toponym.setName(toponymElement.getChildText("name"));
-			toponym.setAlternateNames(toponymElement
-					.getChildText("alternateNames"));
-			toponym.setLatitude(Double.parseDouble(toponymElement
-					.getChildText("lat")));
-			toponym.setLongitude(Double.parseDouble(toponymElement
-					.getChildText("lng")));
-
-			String geonameId = toponymElement.getChildText("geonameId");
-			if (geonameId != null) {
-				toponym.setGeonameId(Integer.parseInt(geonameId));
-			}
-
-			toponym.setCountryCode(toponymElement.getChildText("countryCode"));
-			toponym.setCountryName(toponymElement.getChildText("countryName"));
-
-			toponym.setFeatureClass(FeatureClass.fromValue(toponymElement
-					.getChildText("fcl")));
-			toponym.setFeatureCode(toponymElement.getChildText("fcode"));
-
-			toponym.setFeatureClassName(toponymElement.getChildText("fclName"));
-			toponym
-					.setFeatureCodeName(toponymElement
-							.getChildText("fCodeName"));
-
-			String population = toponymElement.getChildText("population");
-			if (population != null && !"".equals(population)) {
-				toponym.setPopulation(Integer.parseInt(population));
-			}
-			String elevation = toponymElement.getChildText("elevation");
-			if (elevation != null && !"".equals(elevation)) {
-				toponym.setElevation(Integer.parseInt(elevation));
-			}
-
-			toponym.setAdminCode1(toponymElement.getChildText("adminCode1"));
-			toponym.setAdminName1(toponymElement.getChildText("adminName1"));
-			toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
-			toponym.setAdminName2(toponymElement.getChildText("adminName2"));
-			toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
-			toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
-
-			Element timezoneElement = toponymElement.getChild("timezone");
-			if (timezoneElement != null) {
-				Timezone timezone = new Timezone();
-				timezone.setTimezoneId(timezoneElement.getValue());
-				timezone.setDstOffset(Double.parseDouble(timezoneElement
-						.getAttributeValue("dstOffset")));
-				timezone.setGmtOffset(Double.parseDouble(timezoneElement
-						.getAttributeValue("gmtOffset")));
-				toponym.setTimezone(timezone);
-			}
-
+			Toponym toponym = getToponymFromElement(toponymElement);
 			searchResult.toponyms.add(toponym);
 		}
 
