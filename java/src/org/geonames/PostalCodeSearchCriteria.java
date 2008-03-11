@@ -32,6 +32,8 @@ public class PostalCodeSearchCriteria {
 
 	private String countryCode;
 
+	private String countryBias;
+
 	private Double latitude;
 
 	private Double longitude;
@@ -41,6 +43,8 @@ public class PostalCodeSearchCriteria {
 	private Style style;
 
 	private int maxRows;
+
+	private int startRow;
 
 	private boolean isOROperator = false;
 
@@ -205,6 +209,35 @@ public class PostalCodeSearchCriteria {
 	 */
 	public double getRadius() {
 		return radius;
+	}
+
+	/**
+	 * @return the countryBias
+	 */
+	public String getCountryBias() {
+		return countryBias;
+	}
+
+	/**
+	 * @param countryBias
+	 *            the countryBias to set
+	 */
+	public void setCountryBias(String countryBias) {
+		this.countryBias = countryBias;
+	}
+
+	/**
+	 * @return the startRow
+	 */
+	public int getStartRow() {
+		return startRow;
+	}
+
+	/**
+	 * @param startRow the startRow to set
+	 */
+	public void setStartRow(int startRow) {
+		this.startRow = startRow;
 	}
 
 }

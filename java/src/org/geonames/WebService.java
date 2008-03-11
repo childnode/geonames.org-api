@@ -197,8 +197,18 @@ public class WebService {
 			}
 			url = url + "country=" + postalCodeSearchCriteria.getCountryCode();
 		}
+		if (postalCodeSearchCriteria.getCountryBias() != null) {
+			if (!url.endsWith("&")) {
+				url = url + "&";
+			}
+			url = url + "countryBias="
+					+ postalCodeSearchCriteria.getCountryBias();
+		}
 		if (postalCodeSearchCriteria.getMaxRows() > 0) {
 			url = url + "&maxRows=" + postalCodeSearchCriteria.getMaxRows();
+		}
+		if (postalCodeSearchCriteria.getStartRow() > 0) {
+			url = url + "&startRow=" + postalCodeSearchCriteria.getStartRow();
 		}
 		if (postalCodeSearchCriteria.isOROperator()) {
 			url = url + "&operator=OR";
