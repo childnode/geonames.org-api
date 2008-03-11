@@ -124,6 +124,37 @@ public class WebService {
 		return toponym;
 	}
 
+	private static WikipediaArticle getWikipediaArticleFromElement(
+			Element wikipediaArticleElement) {
+		WikipediaArticle wikipediaArticle = new WikipediaArticle();
+		wikipediaArticle.setLanguage(wikipediaArticleElement
+				.getChildText("lang"));
+		wikipediaArticle
+				.setTitle(wikipediaArticleElement.getChildText("title"));
+		wikipediaArticle.setSummary(wikipediaArticleElement
+				.getChildText("summary"));
+		wikipediaArticle.setFeature(wikipediaArticleElement
+				.getChildText("feature"));
+		wikipediaArticle.setWikipediaUrl(wikipediaArticleElement
+				.getChildText("wikipediaUrl"));
+
+		wikipediaArticle.setLatitude(Double.parseDouble(wikipediaArticleElement
+				.getChildText("lat")));
+		wikipediaArticle.setLongitude(Double
+				.parseDouble(wikipediaArticleElement.getChildText("lng")));
+
+		String population = wikipediaArticleElement.getChildText("population");
+		if (population != null && !"".equals(population)) {
+			wikipediaArticle.setPopulation(Integer.parseInt(population));
+		}
+
+		String elevation = wikipediaArticleElement.getChildText("altitude");
+		if (elevation != null && !"".equals(elevation)) {
+			wikipediaArticle.setElevation(Integer.parseInt(elevation));
+		}
+		return wikipediaArticle;
+	}
+
 	public static List<PostalCode> postalCodeSearch(String postalCode,
 			String placeName, String countryCode) throws Exception {
 		PostalCodeSearchCriteria postalCodeSearchCriteria = new PostalCodeSearchCriteria();
@@ -336,7 +367,7 @@ public class WebService {
 			address.setStreetNumber(codeElement.getChildText("streetNumber"));
 
 			address.setPostalCode(codeElement.getChildText("postalcode"));
-			address.setPlaceName(codeElement.getChildText("name"));
+			address.setPlaceName(codeElement.getChildText("placename"));
 			address.setCountryCode(codeElement.getChildText("countryCode"));
 
 			address.setLatitude(Double.parseDouble(codeElement
@@ -608,8 +639,32 @@ public class WebService {
 		}
 	}
 
-	public static void wikipediaSearch() {
-		// TODO
+	public static List<WikipediaArticle> wikipediaSearch(String q,
+			String language) throws Exception {
+		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
+
+		String url = geoNamesServer + "/wikipediaSearch?";
+
+		url = url + "q=" + URLEncoder.encode(q, "UTF8");
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+		url = addUserName(url);
+
+		URLConnection conn = new URL(url).openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(conn.getInputStream());
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("entry")) {
+			Element wikipediaArticleElement = (Element) obj;
+			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
+			articles.add(wikipediaArticle);
+		}
+
+		return articles;
 	}
 
 	public static List<WikipediaArticle> findNearbyWikipedia(double latitude,
@@ -634,30 +689,8 @@ public class WebService {
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("entry")) {
-			Element codeElement = (Element) obj;
-			WikipediaArticle wikipediaArticle = new WikipediaArticle();
-			wikipediaArticle.setLanguage(codeElement.getChildText("lang"));
-			wikipediaArticle.setTitle(codeElement.getChildText("title"));
-			wikipediaArticle.setSummary(codeElement.getChildText("summary"));
-			wikipediaArticle.setFeature(codeElement.getChildText("feature"));
-			wikipediaArticle.setWikipediaUrl(codeElement
-					.getChildText("wikipediaUrl"));
-
-			wikipediaArticle.setLatitude(Double.parseDouble(codeElement
-					.getChildText("lat")));
-			wikipediaArticle.setLongitude(Double.parseDouble(codeElement
-					.getChildText("lng")));
-
-			String population = codeElement.getChildText("population");
-			if (population != null && !"".equals(population)) {
-				wikipediaArticle.setPopulation(Integer.parseInt(population));
-			}
-
-			String elevation = codeElement.getChildText("altitude");
-			if (elevation != null && !"".equals(elevation)) {
-				wikipediaArticle.setElevation(Integer.parseInt(elevation));
-			}
-
+			Element wikipediaArticleElement = (Element) obj;
+			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
 			articles.add(wikipediaArticle);
 		}
 
@@ -680,6 +713,35 @@ public class WebService {
 	public static int gtopo30(double latitude, double longitude)
 			throws IOException {
 		String url = geoNamesServer + "/gtopo30?lat=" + latitude + "&lng="
+				+ longitude;
+		url = addUserName(url);
+		URL geonamesWebservice = new URL(url);
+
+		URLConnection conn = geonamesWebservice.openConnection();
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				geonamesWebservice.openStream()));
+		String gtopo30 = in.readLine();
+		in.close();
+		return Integer.parseInt(gtopo30);
+	}
+
+	/**
+	 * Shuttle Radar Topography Mission (SRTM) elevation data. SRTM consisted of
+	 * a specially modified radar system that flew onboard the Space Shuttle
+	 * Endeavour during an 11-day mission in February of 2000. The dataset
+	 * covers land areas between 60 degrees north and 56 degrees south. This web
+	 * service is using SRTM3 data with data points located every 3-arc-second
+	 * (approximately 90 meters) on a latitude/longitude grid.
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return elevation or -32768 if unknown
+	 * @throws IOException
+	 */
+	public static int srtm3(double latitude, double longitude)
+			throws IOException {
+		String url = geoNamesServer + "/srtm3?lat=" + latitude + "&lng="
 				+ longitude;
 		url = addUserName(url);
 		URL geonamesWebservice = new URL(url);
@@ -772,7 +834,7 @@ public class WebService {
 		}
 		pGeoNamesServer = pGeoNamesServer.trim().toLowerCase();
 		if (!pGeoNamesServer.startsWith("http://")) {
-			pGeoNamesServer += "http://";
+			pGeoNamesServer = "http://" + pGeoNamesServer;
 		}
 		geoNamesServer = pGeoNamesServer;
 	}
