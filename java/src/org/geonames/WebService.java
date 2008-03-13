@@ -18,12 +18,15 @@ package org.geonames;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -37,9 +40,13 @@ import org.jdom.input.SAXBuilder;
  */
 public class WebService {
 
+	private static Logger logger = Logger.getLogger("org.geonames");
+
 	private static String USER_AGENT = "geonames-webservice-client-0.6";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
+
+	private static String geoNamesServerFailover = "http://ws.geonames.org";
 
 	private static Style defaultStyle = Style.MEDIUM;
 
@@ -66,6 +73,32 @@ public class WebService {
 			url = url + "&style=" + defaultStyle.name();
 		}
 		return url;
+	}
+
+	private static InputStream connect(String url) throws IOException {
+		try {
+			URLConnection conn = new URL(geoNamesServer + url).openConnection();
+			conn.setRequestProperty("User-Agent", USER_AGENT);
+			InputStream in = conn.getInputStream();
+			return in;
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "problems connecting to geonames server "
+					+ geoNamesServer, e);
+			if (geoNamesServerFailover == null
+					|| geoNamesServer.equals(geoNamesServerFailover)) {
+				throw e;
+			}
+
+			logger.info("trying to connect to failover server "
+					+ geoNamesServerFailover);
+			// try failover server
+			URLConnection conn = new URL(geoNamesServerFailover + url)
+					.openConnection();
+			conn.setRequestProperty("User-Agent", USER_AGENT
+					+ " failover from " + geoNamesServer);
+			InputStream in = conn.getInputStream();
+			return in;
+		}
 	}
 
 	private static Toponym getToponymFromElement(Element toponymElement) {
@@ -168,7 +201,7 @@ public class WebService {
 			PostalCodeSearchCriteria postalCodeSearchCriteria) throws Exception {
 		List<PostalCode> postalCodes = new ArrayList<PostalCode>();
 
-		String url = geoNamesServer + "/postalCodeSearch?";
+		String url = "/postalCodeSearch?";
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "postalcode="
@@ -215,10 +248,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("code")) {
@@ -248,7 +279,7 @@ public class WebService {
 
 		List<PostalCode> postalCodes = new ArrayList<PostalCode>();
 
-		String url = geoNamesServer + "/findNearbyPostalCodes?";
+		String url = "/findNearbyPostalCodes?";
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "&postalcode="
@@ -283,10 +314,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("code")) {
@@ -327,7 +356,7 @@ public class WebService {
 			Exception {
 		List<Toponym> places = new ArrayList<Toponym>();
 
-		String url = geoNamesServer + "/findNearbyPlaceName?";
+		String url = "/findNearbyPlaceName?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -340,10 +369,8 @@ public class WebService {
 		url = addUserName(url);
 		url = addDefaultStyle(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("geoname")) {
@@ -358,16 +385,14 @@ public class WebService {
 	public static Address findNearestAddress(double latitude, double longitude)
 			throws IOException, Exception {
 
-		String url = geoNamesServer + "/findNearestAddress?";
+		String url = "/findNearestAddress?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("address")) {
@@ -407,7 +432,7 @@ public class WebService {
 	public static Intersection findNearestIntersection(double latitude,
 			double longitude, double radius) throws Exception {
 
-		String url = geoNamesServer + "/findNearestIntersection?";
+		String url = "/findNearestIntersection?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -416,10 +441,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("intersection")) {
@@ -446,7 +469,7 @@ public class WebService {
 	public static List<StreetSegment> findNearbyStreets(double latitude,
 			double longitude, double radius) throws Exception {
 
-		String url = geoNamesServer + "/findNearbyStreets?";
+		String url = "/findNearbyStreets?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -457,10 +480,8 @@ public class WebService {
 
 		List<StreetSegment> segments = new ArrayList<StreetSegment>();
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("streetSegment")) {
@@ -518,7 +539,7 @@ public class WebService {
 			ToponymSearchCriteria searchCriteria) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
 
-		String url = geoNamesServer + "/search?";
+		String url = "/search?";
 
 		if (searchCriteria.getQ() != null) {
 			url = url + "q=" + URLEncoder.encode(searchCriteria.getQ(), "UTF8");
@@ -592,10 +613,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 
@@ -621,7 +640,7 @@ public class WebService {
 		}
 
 		// FIXME proper url
-		String url = geoNamesServer + "/servlet/geonames?srv=61";
+		String url = "/servlet/geonames?srv=61";
 
 		url = url + "&geonameId=" + toponym.getGeonameId();
 		url = addUserName(url);
@@ -632,10 +651,8 @@ public class WebService {
 		}
 		url = url + "&tag=" + tagsCommaseparated;
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 
@@ -653,7 +670,7 @@ public class WebService {
 			String language) throws Exception {
 		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
 
-		String url = geoNamesServer + "/wikipediaSearch?";
+		String url = "/wikipediaSearch?";
 
 		url = url + "q=" + URLEncoder.encode(q, "UTF8");
 
@@ -662,10 +679,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("entry")) {
@@ -682,7 +697,7 @@ public class WebService {
 
 		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
 
-		String url = geoNamesServer + "/findNearbyWikipedia?";
+		String url = "/findNearbyWikipedia?";
 
 		url = url + "lat=" + latitude;
 		url = url + "&lng=" + longitude;
@@ -692,10 +707,8 @@ public class WebService {
 		}
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("entry")) {
@@ -722,15 +735,10 @@ public class WebService {
 	 */
 	public static int gtopo30(double latitude, double longitude)
 			throws IOException {
-		String url = geoNamesServer + "/gtopo30?lat=" + latitude + "&lng="
-				+ longitude;
+		String url = "/gtopo30?lat=" + latitude + "&lng=" + longitude;
 		url = addUserName(url);
-		URL geonamesWebservice = new URL(url);
-
-		URLConnection conn = geonamesWebservice.openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
-				geonamesWebservice.openStream()));
+				connect(url)));
 		String gtopo30 = in.readLine();
 		in.close();
 		return Integer.parseInt(gtopo30);
@@ -751,15 +759,10 @@ public class WebService {
 	 */
 	public static int srtm3(double latitude, double longitude)
 			throws IOException {
-		String url = geoNamesServer + "/srtm3?lat=" + latitude + "&lng="
-				+ longitude;
+		String url = "/srtm3?lat=" + latitude + "&lng=" + longitude;
 		url = addUserName(url);
-		URL geonamesWebservice = new URL(url);
-
-		URLConnection conn = geonamesWebservice.openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
-				geonamesWebservice.openStream()));
+				connect(url)));
 		String gtopo30 = in.readLine();
 		in.close();
 		return Integer.parseInt(gtopo30);
@@ -775,15 +778,10 @@ public class WebService {
 	 */
 	public static String countryCode(double latitude, double longitude)
 			throws IOException {
-		String url = geoNamesServer + "/countrycode?lat=" + latitude + "&lng="
-				+ longitude;
+		String url = "/countrycode?lat=" + latitude + "&lng=" + longitude;
 		url = addUserName(url);
-		URL geonamesWebservice = new URL(url);
-
-		URLConnection conn = geonamesWebservice.openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
-				geonamesWebservice.openStream()));
+				connect(url)));
 		String cc = in.readLine();
 		in.close();
 		return cc;
@@ -801,16 +799,14 @@ public class WebService {
 	public static Timezone timezone(double latitude, double longitude)
 			throws IOException, Exception {
 
-		String url = geoNamesServer + "/timezone?";
+		String url = "/timezone?";
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
 		url = addUserName(url);
 
-		URLConnection conn = new URL(url).openConnection();
-		conn.setRequestProperty("User-Agent", USER_AGENT);
 		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(conn.getInputStream());
+		Document doc = parser.build(connect(url));
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("timezone")) {
@@ -835,6 +831,13 @@ public class WebService {
 	}
 
 	/**
+	 * @return the geoNamesServerFailover
+	 */
+	public static String getGeoNamesServerFailover() {
+		return geoNamesServerFailover;
+	}
+
+	/**
 	 * @param geoNamesServer
 	 *            the geonamesServer to set
 	 */
@@ -846,7 +849,22 @@ public class WebService {
 		if (!pGeoNamesServer.startsWith("http://")) {
 			pGeoNamesServer = "http://" + pGeoNamesServer;
 		}
-		geoNamesServer = pGeoNamesServer;
+		WebService.geoNamesServer = pGeoNamesServer;
+	}
+
+	/**
+	 * @param geoNamesServerFailover
+	 *            the geoNamesServerFailover to set
+	 */
+	public static void setGeoNamesServerFailover(String geoNamesServerFailover) {
+		if (geoNamesServerFailover == null) {
+			throw new Error();
+		}
+		geoNamesServerFailover = geoNamesServerFailover.trim().toLowerCase();
+		if (!geoNamesServerFailover.startsWith("http://")) {
+			geoNamesServerFailover = "http://" + geoNamesServerFailover;
+		}
+		WebService.geoNamesServerFailover = geoNamesServerFailover;
 	}
 
 	/**
