@@ -633,6 +633,84 @@ public class WebService {
 		return searchResult;
 	}
 
+	public static ToponymSearchResult children(int geonameId, String language,
+			Style style) throws Exception {
+		ToponymSearchResult searchResult = new ToponymSearchResult();
+
+		String url = "/children?";
+
+		url = url + "geonameId=" + geonameId;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+
+		if (style != null) {
+			url = url + "&style=" + style;
+		} else {
+			url = addDefaultStyle(url);
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+
+		checkException(root);
+
+		searchResult.totalResultsCount = Integer.parseInt(root
+				.getChildText("totalResultsCount"));
+		searchResult.setStyle(Style.valueOf(root.getAttributeValue("style")));
+
+		for (Object obj : root.getChildren("geoname")) {
+			Element toponymElement = (Element) obj;
+			Toponym toponym = getToponymFromElement(toponymElement);
+			searchResult.toponyms.add(toponym);
+		}
+
+		return searchResult;
+	}
+
+	public static ToponymSearchResult neighbours(int geonameId,
+			String language, Style style) throws Exception {
+		ToponymSearchResult searchResult = new ToponymSearchResult();
+
+		String url = "/neighbours?";
+
+		url = url + "geonameId=" + geonameId;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+
+		if (style != null) {
+			url = url + "&style=" + style;
+		} else {
+			url = addDefaultStyle(url);
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+
+		checkException(root);
+
+		searchResult.totalResultsCount = Integer.parseInt(root
+				.getChildText("totalResultsCount"));
+		searchResult.setStyle(Style.valueOf(root.getAttributeValue("style")));
+
+		for (Object obj : root.getChildren("geoname")) {
+			Element toponymElement = (Element) obj;
+			Toponym toponym = getToponymFromElement(toponymElement);
+			searchResult.toponyms.add(toponym);
+		}
+
+		return searchResult;
+	}
+
 	public static void saveTags(String[] tags, Toponym toponym,
 			String username, String password) throws Exception {
 		if (toponym.getGeonameId() == 0) {
