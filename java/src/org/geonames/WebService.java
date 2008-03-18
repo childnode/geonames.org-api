@@ -42,7 +42,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-0.6";
+	private static String USER_AGENT = "geonames-webservice-client-1.0";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -115,7 +115,7 @@ public class WebService {
 
 		String geonameId = toponymElement.getChildText("geonameId");
 		if (geonameId != null) {
-			toponym.setGeonameId(Integer.parseInt(geonameId));
+			toponym.setGeoNameId(Integer.parseInt(geonameId));
 		}
 
 		toponym.setCountryCode(toponymElement.getChildText("countryCode"));
@@ -713,14 +713,14 @@ public class WebService {
 
 	public static void saveTags(String[] tags, Toponym toponym,
 			String username, String password) throws Exception {
-		if (toponym.getGeonameId() == 0) {
+		if (toponym.getGeoNameId() == 0) {
 			throw new Error("no geonameid specified");
 		}
 
 		// FIXME proper url
 		String url = "/servlet/geonames?srv=61";
 
-		url = url + "&geonameId=" + toponym.getGeonameId();
+		url = url + "&geonameId=" + toponym.getGeoNameId();
 		url = addUserName(url);
 
 		StringBuilder tagsCommaseparated = new StringBuilder();

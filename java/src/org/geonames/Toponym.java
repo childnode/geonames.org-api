@@ -24,7 +24,7 @@ package org.geonames;
  */
 public class Toponym {
 
-	private int geonameId;
+	private int geoNameId;
 
 	private String name;
 
@@ -185,18 +185,18 @@ public class Toponym {
 	}
 
 	/**
-	 * @return Returns the geonameId.
+	 * @return Returns the geoNameId.
 	 */
-	public int getGeonameId() {
-		return geonameId;
+	public int getGeoNameId() {
+		return geoNameId;
 	}
 
 	/**
-	 * @param geonameId
-	 *            The geonameId to set.
+	 * @param geoNameId
+	 *            The geoNameId to set.
 	 */
-	public void setGeonameId(int geonameId) {
-		this.geonameId = geonameId;
+	public void setGeoNameId(int geonameId) {
+		this.geoNameId = geonameId;
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class Toponym {
 
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("geonameId=" + geonameId + ",");
+		str.append("geoNameId=" + geoNameId + ",");
 		str.append("name=" + name + ",");
 		if (alternateNames != null) {
 			str.append("alternateNames=" + alternateNames + ",");
