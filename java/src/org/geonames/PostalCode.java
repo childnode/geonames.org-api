@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ public class PostalCode {
 	}
 
 	/**
-	 * @return Returns the iso countryCode.
+	 * @return Returns the ISO 3166-1-alpha-2 countryCode.
 	 */
 	public String getCountryCode() {
 		return countryCode;
@@ -128,7 +128,7 @@ public class PostalCode {
 
 	/**
 	 * @param countryCode
-	 *            The iso countryCode to set.
+	 *            The ISO 3166-1-alpha-2 countryCode to set.
 	 */
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;

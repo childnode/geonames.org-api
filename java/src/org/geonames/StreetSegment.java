@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,17 @@
  */
 package org.geonames;
 
+/**
+ * a street line segment. Includes house number information for the beginning
+ * and end of the line as well as right and left hand side of the line.
+ * 
+ * @author marc@geonames
+ * 
+ */
 public class StreetSegment extends PostalCode {
 
 	private double[] latArray;
+
 	private double[] lngArray;
 
 	/**

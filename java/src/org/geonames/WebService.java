@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,12 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 /**
- * provides static methods accessing the geonames web services
+ * provides static methods to access the <a
+ * href="http://www.geonames.org/export/ws-overview.html">GeoNames web services</a>.
+ * <p>
+ * Note : values for some fields are only returned with sufficient {@link Style}.
+ * Accessing these fields (admin codes and admin names, elevation,population) will throw an
+ * {@link InsufficientStyleException} if the {@link Style} was not sufficient.
  * 
  * @author marc@geonames
  * 
@@ -48,6 +53,8 @@ public class WebService {
 
 	private static String geoNamesServerFailover = "http://ws.geonames.org";
 
+	private static long timeOfLastFailureMainServer;
+
 	private static Style defaultStyle = Style.MEDIUM;
 
 	/**
@@ -56,8 +63,19 @@ public class WebService {
 	 */
 	private static String userName;
 
+	/**
+	 * token to pass to as optional authentication parameter to the commercial
+	 * web services.
+	 */
 	private static String token;
 
+	/**
+	 * adds the username stored in a static variable to the url. It also adds a
+	 * token if one has been set with the static setter previously.
+	 * 
+	 * @param url
+	 * @return url with the username appended
+	 */
 	private static String addUserName(String url) {
 		if (userName != null) {
 			url = url + "&username=" + userName;
@@ -68,6 +86,13 @@ public class WebService {
 		return url;
 	}
 
+	/**
+	 * adds the default style to the url. The default style can be set with the
+	 * static setter. It is 'MEDIUM' if not set.
+	 * 
+	 * @param url
+	 * @return url with the style parameter appended
+	 */
 	private static String addDefaultStyle(String url) {
 		if (defaultStyle != Style.MEDIUM) {
 			url = url + "&style=" + defaultStyle.name();
@@ -75,20 +100,65 @@ public class WebService {
 		return url;
 	}
 
+	/**
+	 * returns the currently active server. Normally this is the main server, if
+	 * the main server recently failed then the failover server is returned. If
+	 * the main server is not available we don't want to try with every request
+	 * whether it is available again. We switch to the failover server and try
+	 * from time to time whether the main server is again accessible.
+	 * 
+	 * @return
+	 */
+	private static String getCurrentlyActiveServer() {
+		if (timeOfLastFailureMainServer == 0) {
+			// no problems with main server
+			return geoNamesServer;
+		}
+		// we had problems with main server
+		if (System.currentTimeMillis() - timeOfLastFailureMainServer > 1000l * 60l * 10l) {
+			// but is was some time ago and we switch back to the main server to
+			// retry. The problem may have been solved in the mean time.
+			timeOfLastFailureMainServer = 0;
+			return geoNamesServer;
+		}
+		if (System.currentTimeMillis() < timeOfLastFailureMainServer) {
+			throw new Error("time of last failure cannot be in future.");
+		}
+		// the problems have been very recent and we continue with failover
+		// server
+		return geoNamesServerFailover;
+	}
+
+	/**
+	 * opens the connection to the url and sets the user agent. In case of an
+	 * IOException it checks whether a failover server is set and connects to
+	 * the failover server if it has been defined and if it is different from
+	 * the normal server.
+	 * 
+	 * @param url
+	 *            the url to connect to
+	 * @return returns the inputstream for the connection
+	 * @throws IOException
+	 */
 	private static InputStream connect(String url) throws IOException {
+		String currentlyActiveServer = getCurrentlyActiveServer();
 		try {
-			URLConnection conn = new URL(geoNamesServer + url).openConnection();
+			URLConnection conn = new URL(currentlyActiveServer + url)
+					.openConnection();
 			conn.setRequestProperty("User-Agent", USER_AGENT);
 			InputStream in = conn.getInputStream();
 			return in;
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "problems connecting to geonames server "
+			// we cannot reach the server
+			logger.log(Level.WARNING, "problems connecting to geonames server "
 					+ geoNamesServer, e);
+			// is a failover server defined?
 			if (geoNamesServerFailover == null
-					|| geoNamesServer.equals(geoNamesServerFailover)) {
+			// is it different from the one we are using?
+					|| currentlyActiveServer.equals(geoNamesServerFailover)) {
 				throw e;
 			}
-
+			timeOfLastFailureMainServer = System.currentTimeMillis();
 			logger.info("trying to connect to failover server "
 					+ geoNamesServerFailover);
 			// try failover server
@@ -170,6 +240,8 @@ public class WebService {
 				.getChildText("feature"));
 		wikipediaArticle.setWikipediaUrl(wikipediaArticleElement
 				.getChildText("wikipediaUrl"));
+		wikipediaArticle.setThumbnailImg(wikipediaArticleElement
+				.getChildText("thumbnailImg"));
 
 		wikipediaArticle.setLatitude(Double.parseDouble(wikipediaArticleElement
 				.getChildText("lat")));
@@ -188,6 +260,16 @@ public class WebService {
 		return wikipediaArticle;
 	}
 
+	/**
+	 * returns a list of postal codes for the given parameters. This method is
+	 * for convenience.
+	 * 
+	 * @param postalCode
+	 * @param placeName
+	 * @param countryCode
+	 * @return
+	 * @throws Exception
+	 */
 	public static List<PostalCode> postalCodeSearch(String postalCode,
 			String placeName, String countryCode) throws Exception {
 		PostalCodeSearchCriteria postalCodeSearchCriteria = new PostalCodeSearchCriteria();
@@ -197,6 +279,14 @@ public class WebService {
 		return postalCodeSearch(postalCodeSearchCriteria);
 	}
 
+	/**
+	 * returns a list of postal codes for the given search criteria matching a
+	 * full text search on the GeoNames postal codes database.
+	 * 
+	 * @param postalCodeSearchCriteria
+	 * @return
+	 * @throws Exception
+	 */
 	public static List<PostalCode> postalCodeSearch(
 			PostalCodeSearchCriteria postalCodeSearchCriteria) throws Exception {
 		List<PostalCode> postalCodes = new ArrayList<PostalCode>();
@@ -274,6 +364,13 @@ public class WebService {
 		return postalCodes;
 	}
 
+	/**
+	 * returns a list of postal codes
+	 * 
+	 * @param postalCodeSearchCriteria
+	 * @return
+	 * @throws Exception
+	 */
 	public static List<PostalCode> findNearbyPostalCodes(
 			PostalCodeSearchCriteria postalCodeSearchCriteria) throws Exception {
 
@@ -346,6 +443,16 @@ public class WebService {
 		return postalCodes;
 	}
 
+	/**
+	 * convenience method for
+	 * {@link #findNearbyPlaceName(double,double,double,int)}
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
 	public static List<Toponym> findNearbyPlaceName(double latitude,
 			double longitude) throws IOException, Exception {
 		return findNearbyPlaceName(latitude, longitude, 0, 0);
@@ -466,6 +573,18 @@ public class WebService {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @see <a
+	 *      href="http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets">
+	 *      web service documentation</a>
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param radius
+	 * @return
+	 * @throws Exception
+	 */
 	public static List<StreetSegment> findNearbyStreets(double latitude,
 			double longitude, double radius) throws Exception {
 
@@ -514,12 +633,43 @@ public class WebService {
 		return segments;
 	}
 
+	/**
+	 * convenience method for {@link #search(ToponymSearchCriteria)}
+	 * 
+	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
+	 *      web service documentation</a>
+	 * 
+	 * @param q
+	 * @param countryCode
+	 * @param name
+	 * @param featureCodes
+	 * @param startRow
+	 * @return
+	 * @throws Exception
+	 */
 	public static ToponymSearchResult search(String q, String countryCode,
 			String name, String[] featureCodes, int startRow) throws Exception {
 		return search(q, countryCode, name, featureCodes, startRow, null, null,
 				null);
 	}
 
+	/**
+	 * convenience method for {@link #search(ToponymSearchCriteria)}
+	 * 
+	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
+	 *      web service documentation</a>
+	 * 
+	 * @param q
+	 * @param countryCode
+	 * @param name
+	 * @param featureCodes
+	 * @param startRow
+	 * @param language
+	 * @param style
+	 * @param exactName
+	 * @return
+	 * @throws Exception
+	 */
 	public static ToponymSearchResult search(String q, String countryCode,
 			String name, String[] featureCodes, int startRow, String language,
 			Style style, String exactName) throws Exception {
@@ -535,6 +685,21 @@ public class WebService {
 		return search(searchCriteria);
 	}
 
+	/**
+	 * full text search on the GeoNames database.
+	 * 
+	 * This service gets the number of toponyms defined by the 'maxRows'
+	 * parameter. The parameter 'style' determines which fields are returned by
+	 * the service.
+	 * 
+	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
+	 *      web service documentation</a>
+	 * 
+	 * 
+	 * @param searchCriteria
+	 * @return
+	 * @throws Exception
+	 */
 	public static ToponymSearchResult search(
 			ToponymSearchCriteria searchCriteria) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
@@ -627,12 +792,22 @@ public class WebService {
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
 			Toponym toponym = getToponymFromElement(toponymElement);
+			toponym.setStyle(searchResult.getStyle());
 			searchResult.toponyms.add(toponym);
 		}
 
 		return searchResult;
 	}
 
+	/**
+	 * returns the children in the administrative hierarchy of a toponym.
+	 * 
+	 * @param geonameId
+	 * @param language
+	 * @param style
+	 * @return
+	 * @throws Exception
+	 */
 	public static ToponymSearchResult children(int geonameId, String language,
 			Style style) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
@@ -672,6 +847,15 @@ public class WebService {
 		return searchResult;
 	}
 
+	/**
+	 * returns the neighbours of a toponym.
+	 * 
+	 * @param geonameId
+	 * @param language
+	 * @param style
+	 * @return
+	 * @throws Exception
+	 */
 	public static ToponymSearchResult neighbours(int geonameId,
 			String language, Style style) throws Exception {
 		ToponymSearchResult searchResult = new ToponymSearchResult();
@@ -744,6 +928,14 @@ public class WebService {
 		}
 	}
 
+	/**
+	 * full text search on geolocated wikipedia articles.
+	 * 
+	 * @param q
+	 * @param language
+	 * @return
+	 * @throws Exception
+	 */
 	public static List<WikipediaArticle> wikipediaSearch(String q,
 			String language) throws Exception {
 		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
@@ -916,6 +1108,9 @@ public class WebService {
 	}
 
 	/**
+	 * sets the server name for the GeoNames server to be used for the requests.
+	 * Default is ws.geonames.org
+	 * 
 	 * @param geoNamesServer
 	 *            the geonamesServer to set
 	 */
@@ -931,16 +1126,22 @@ public class WebService {
 	}
 
 	/**
+	 * sets the default failover server for requests in case the main server is
+	 * not accessible. Default is ws.geonames.org<br>
+	 * The failover server is only called if it is different from the main
+	 * server.<br>
+	 * The failover server is used for commercial GeoNames web service users.
+	 * 
 	 * @param geoNamesServerFailover
 	 *            the geoNamesServerFailover to set
 	 */
 	public static void setGeoNamesServerFailover(String geoNamesServerFailover) {
-		if (geoNamesServerFailover == null) {
-			throw new Error();
-		}
-		geoNamesServerFailover = geoNamesServerFailover.trim().toLowerCase();
-		if (!geoNamesServerFailover.startsWith("http://")) {
-			geoNamesServerFailover = "http://" + geoNamesServerFailover;
+		if (geoNamesServerFailover != null) {
+			geoNamesServerFailover = geoNamesServerFailover.trim()
+					.toLowerCase();
+			if (!geoNamesServerFailover.startsWith("http://")) {
+				geoNamesServerFailover = "http://" + geoNamesServerFailover;
+			}
 		}
 		WebService.geoNamesServerFailover = geoNamesServerFailover;
 	}
@@ -953,6 +1154,9 @@ public class WebService {
 	}
 
 	/**
+	 * Sets the user name to be used for the requests. Needed to access the
+	 * commercial GeoNames web services.
+	 * 
 	 * @param userName
 	 *            the userName to set
 	 */
@@ -968,6 +1172,10 @@ public class WebService {
 	}
 
 	/**
+	 * sets the token to be used to authenticate the requests. This is an
+	 * optional parameter for the commercial version of the GeoNames web
+	 * services.
+	 * 
 	 * @param token
 	 *            the token to set
 	 */

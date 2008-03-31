@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @return Returns the countryCode.
+	 * @return Returns the ISO 3166-1-alpha-2 countryCode.
 	 */
 	public String getCountryCode() {
 		return countryCode;
@@ -72,12 +72,13 @@ public class PostalCodeSearchCriteria {
 
 	/**
 	 * @param countryCode
-	 *            The countryCode to set.
+	 *            The ISO 3166-1-alpha-2 countryCode to set.
 	 */
 	public void setCountryCode(String countryCode)
 			throws InvalidParameterException {
 		if (countryCode != null && countryCode.length() != 2) {
-			throw new InvalidParameterException("invalid country code");
+			throw new InvalidParameterException("invalid country code "
+					+ countryCode);
 		}
 		this.countryCode = countryCode;
 	}
@@ -234,7 +235,8 @@ public class PostalCodeSearchCriteria {
 	}
 
 	/**
-	 * @param startRow the startRow to set
+	 * @param startRow
+	 *            the startRow to set
 	 */
 	public void setStartRow(int startRow) {
 		this.startRow = startRow;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ public class WikipediaArticle {
 	private double latitude;
 
 	private double longitude;
+	
+	private String thumbnailImg;
 
 	/**
 	 * @return Returns the elevation.
@@ -175,6 +177,20 @@ public class WikipediaArticle {
 	 */
 	public void setWikipediaUrl(String wikipediaURL) {
 		this.wikipediaUrl = wikipediaURL;
+	}
+
+	/**
+	 * @return the thumbnailImg
+	 */
+	public String getThumbnailImg() {
+		return thumbnailImg;
+	}
+
+	/**
+	 * @param thumbnailImg the thumbnailImg to set
+	 */
+	public void setThumbnailImg(String thumbnailImg) {
+		this.thumbnailImg = thumbnailImg;
 	}
 
 }

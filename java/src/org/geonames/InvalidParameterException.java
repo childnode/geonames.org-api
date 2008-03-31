@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 package org.geonames;
 
 /**
+ * is thrown when the search criteria is initialized with obviously invalid parameters,
+ * such as an invalid country code.
+ * 
  * @author marc
  * 
  */

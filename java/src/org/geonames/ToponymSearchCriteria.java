@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Marc Wick, geonames.org
+ * Copyright 2008 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,12 @@
 package org.geonames;
 
 /**
- * search criteria for web services returning toponyms
+ * search criteria for web services returning toponyms.
+ * 
+ * @see WebService#search
+ * 
+ * @see <a href="http://www.geonames.org/export/geonames-search.html">search web
+ *      service documentation</a>
  * 
  * @author marc@geonames
  * 
@@ -57,7 +62,7 @@ public class ToponymSearchCriteria {
 	private int startRow;
 
 	/**
-	 * @return Returns the countryCode.
+	 * @return Returns the ISO 3166-1-alpha-2 countryCode.
 	 */
 	public String getCountryCode() {
 		return countryCode;
@@ -65,9 +70,14 @@ public class ToponymSearchCriteria {
 
 	/**
 	 * @param countryCode
-	 *            The countryCode to set.
+	 *            The ISO 3166-1-alpha-2 countryCode to set.
 	 */
-	public void setCountryCode(String countryCode) {
+	public void setCountryCode(String countryCode)
+			throws InvalidParameterException {
+		if (countryCode != null && countryCode.length() != 2) {
+			throw new InvalidParameterException("invalid country code "
+					+ countryCode);
+		}
 		this.countryCode = countryCode;
 	}
 

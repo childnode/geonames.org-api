@@ -17,45 +17,14 @@
 package org.geonames;
 
 /**
- * a street address
+ * Is thrown when trying to access a field that has not been set as the style
+ * for the request was not sufficiently verbose to return this information.
  * 
- * @author Mark Thomas
+ * @author marc
  * 
  */
-public class Address extends PostalCode {
-
-	private String street;
-
-	private String streetNumber;
-
-	/**
-	 * @return the street
-	 */
-	public String getStreet() {
-		return street;
+public class InsufficientStyleException extends Exception {
+	public InsufficientStyleException(String msg) {
+		super(msg);
 	}
-
-	/**
-	 * @param street
-	 *            the street to set
-	 */
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
-	/**
-	 * @return the streetNumber
-	 */
-	public String getStreetNumber() {
-		return streetNumber;
-	}
-
-	/**
-	 * @param streetNumber
-	 *            the streetNumber to set
-	 */
-	public void setStreetNumber(String streetNumber) {
-		this.streetNumber = streetNumber;
-	}
-
 }
