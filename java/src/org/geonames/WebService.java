@@ -37,8 +37,9 @@ import org.jdom.input.SAXBuilder;
  * href="http://www.geonames.org/export/ws-overview.html">GeoNames web services</a>.
  * <p>
  * Note : values for some fields are only returned with sufficient {@link Style}.
- * Accessing these fields (admin codes and admin names, elevation,population) will throw an
- * {@link InsufficientStyleException} if the {@link Style} was not sufficient.
+ * Accessing these fields (admin codes and admin names, elevation,population)
+ * will throw an {@link InsufficientStyleException} if the {@link Style} was not
+ * sufficient.
  * 
  * @author marc@geonames
  * 
@@ -943,6 +944,40 @@ public class WebService {
 		String url = "/wikipediaSearch?";
 
 		url = url + "q=" + URLEncoder.encode(q, "UTF8");
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("entry")) {
+			Element wikipediaArticleElement = (Element) obj;
+			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
+			articles.add(wikipediaArticle);
+		}
+
+		return articles;
+	}
+
+	/**
+	 * full text search on geolocated wikipedia articles.
+	 * 
+	 * @param title
+	 * @param language
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<WikipediaArticle> wikipediaSearchForTitle(String title,
+			String language) throws Exception {
+		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
+
+		String url = "/wikipediaSearch?";
+
+		url = url + "title=" + URLEncoder.encode(title, "UTF8");
 
 		if (language != null) {
 			url = url + "&lang=" + language;
