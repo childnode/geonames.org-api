@@ -48,7 +48,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.1";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -57,6 +57,10 @@ public class WebService {
 	private static long timeOfLastFailureMainServer;
 
 	private static Style defaultStyle = Style.MEDIUM;
+
+	private static int readTimeOut = 120000;
+
+	private static int connectTimeOut = 10000;
 
 	/**
 	 * user name to pass to commercial web services for authentication and
@@ -146,6 +150,8 @@ public class WebService {
 		try {
 			URLConnection conn = new URL(currentlyActiveServer + url)
 					.openConnection();
+			conn.setConnectTimeout(connectTimeOut);
+			conn.setReadTimeout(readTimeOut);
 			conn.setRequestProperty("User-Agent", USER_AGENT);
 			InputStream in = conn.getInputStream();
 			return in;
@@ -1231,6 +1237,36 @@ public class WebService {
 	 */
 	public static void setDefaultStyle(Style defaultStyle) {
 		WebService.defaultStyle = defaultStyle;
+	}
+
+	/**
+	 * @return the readTimeOut
+	 */
+	public static int getReadTimeOut() {
+		return readTimeOut;
+	}
+
+	/**
+	 * @param readTimeOut
+	 *            the readTimeOut to set
+	 */
+	public static void setReadTimeOut(int readTimeOut) {
+		WebService.readTimeOut = readTimeOut;
+	}
+
+	/**
+	 * @return the connectTimeOut
+	 */
+	public static int getConnectTimeOut() {
+		return connectTimeOut;
+	}
+
+	/**
+	 * @param connectTimeOut
+	 *            the connectTimeOut to set
+	 */
+	public static void setConnectTimeOut(int connectTimeOut) {
+		WebService.connectTimeOut = connectTimeOut;
 	}
 
 }
