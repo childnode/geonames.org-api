@@ -34,10 +34,11 @@ import org.jdom.input.SAXBuilder;
 
 /**
  * provides static methods to access the <a
- * href="http://www.geonames.org/export/ws-overview.html">GeoNames web services</a>.
+ * href="http://www.geonames.org/export/ws-overview.html">GeoNames web
+ * services</a>.
  * <p>
- * Note : values for some fields are only returned with sufficient {@link Style}.
- * Accessing these fields (admin codes and admin names, elevation,population)
+ * Note : values for some fields are only returned with sufficient {@link Style}
+ * . Accessing these fields (admin codes and admin names, elevation,population)
  * will throw an {@link InsufficientStyleException} if the {@link Style} was not
  * sufficient.
  * 
@@ -582,9 +583,9 @@ public class WebService {
 
 	/**
 	 * 
-	 * @see <a
-	 *      href="http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets">
-	 *      web service documentation</a>
+	 * @see <a * href=
+	 *      "http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets"
+	 *      > * web service documentation< /a>
 	 * 
 	 * @param latitude
 	 * @param longitude
@@ -644,7 +645,7 @@ public class WebService {
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      web service documentation</a>
+	 *      * web service documentation< /a>
 	 * 
 	 * @param q
 	 * @param countryCode
@@ -664,7 +665,7 @@ public class WebService {
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      web service documentation</a>
+	 *      * web service documentation< /a>
 	 * 
 	 * @param q
 	 * @param countryCode
@@ -700,7 +701,7 @@ public class WebService {
 	 * the service.
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      web service documentation</a>
+	 *      * web service documentation< /a>
 	 * 
 	 * 
 	 * @param searchCriteria
@@ -1160,7 +1161,9 @@ public class WebService {
 			throw new Error();
 		}
 		pGeoNamesServer = pGeoNamesServer.trim().toLowerCase();
-		if (!pGeoNamesServer.startsWith("http://")) {
+		// add default http protocol if it is missing
+		if (!pGeoNamesServer.startsWith("http://")
+				&& !pGeoNamesServer.startsWith("https://")) {
 			pGeoNamesServer = "http://" + pGeoNamesServer;
 		}
 		WebService.geoNamesServer = pGeoNamesServer;
