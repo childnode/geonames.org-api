@@ -208,7 +208,7 @@ public class WebService {
 
 		String population = toponymElement.getChildText("population");
 		if (population != null && !"".equals(population)) {
-			toponym.setPopulation(Integer.parseInt(population));
+			toponym.setPopulation(Long.parseLong(population));
 		}
 		String elevation = toponymElement.getChildText("elevation");
 		if (elevation != null && !"".equals(elevation)) {

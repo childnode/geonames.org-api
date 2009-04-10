@@ -34,7 +34,7 @@ public class Toponym {
 
 	private String countryName;
 
-	private Integer population;
+	private Long population;
 
 	private Integer elevation;
 
@@ -189,7 +189,7 @@ public class Toponym {
 	/**
 	 * @return Returns the population.
 	 */
-	public Integer getPopulation() throws InsufficientStyleException {
+	public Long getPopulation() throws InsufficientStyleException {
 		if (population == null && style != null
 				&& Style.LONG.compareTo(style) > 0) {
 			throw new InsufficientStyleException(
@@ -202,7 +202,7 @@ public class Toponym {
 	 * @param population
 	 *            The population to set.
 	 */
-	public void setPopulation(Integer population) {
+	public void setPopulation(Long population) {
 		this.population = population;
 	}
 
