@@ -49,7 +49,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.1";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.2";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
