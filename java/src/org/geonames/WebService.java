@@ -1081,16 +1081,35 @@ public class WebService {
 	}
 
 	/**
-	 * The iso country code of any given point.
+	 * The iso country code of any given point. It is calling
+	 * {@link #countryCode(double, double, double)} with radius=0.0
 	 * 
 	 * @param latitude
 	 * @param longitude
-	 * @return iso country code for the given latitude/longitude
+	 * @return
 	 * @throws IOException
 	 */
 	public static String countryCode(double latitude, double longitude)
 			throws IOException {
+		return countryCode(latitude, longitude, 0);
+	}
+
+	/**
+	 * The iso country code of any given point with radius for coastal areas.
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param radius
+	 * 
+	 * @return iso country code for the given latitude/longitude
+	 * @throws IOException
+	 */
+	public static String countryCode(double latitude, double longitude,
+			double radius) throws IOException {
 		String url = "/countrycode?lat=" + latitude + "&lng=" + longitude;
+		if (radius != 0) {
+			url += "&radius=" + radius;
+		}
 		url = addUserName(url);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				connect(url)));
