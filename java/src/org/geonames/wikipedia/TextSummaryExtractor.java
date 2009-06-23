@@ -66,7 +66,7 @@ public class TextSummaryExtractor {
 				if (pText.charAt(idx + 1) == '[') {
 					// we have two square brackets "[[" (link)
 
-					// get the end of the square bracket
+					// get the end of the double square bracket
 					int endOfLink = pText.indexOf("]]", idx);
 
 					// image link ?
@@ -85,6 +85,15 @@ public class TextSummaryExtractor {
 						idx = idx + 2;
 					}
 					continue;
+				} else {
+					// next character is not a square brackets and thus a
+					// reference link to be removed
+					// get the end of the square bracket
+					int endOfLink = pText.indexOf("]", idx);
+					if (endOfLink > -1) {
+						idx = endOfLink + 1;
+						continue;
+					}
 				}
 			} else if (c == ']') {
 				// look ahead
@@ -101,6 +110,7 @@ public class TextSummaryExtractor {
 		String textString = removeWhiteSpace(
 				summary.toString().replaceAll("\r", " ").replaceAll("\n", " ")
 						.replaceAll("\t", " ")).trim();
+		textString = removeBold(textString);
 
 		// convert 'non breaking html spaces' into blanks. But preserve them
 		// (don't remove white space)
@@ -109,6 +119,9 @@ public class TextSummaryExtractor {
 		// find full stop near length of text
 		// only look at first paragraph for summary
 		int endOfTextIdx = textString.indexOf("==");
+		if (endOfTextIdx == -1) {
+			endOfTextIdx = length;
+		}
 
 		// 
 		if (endOfTextIdx < 20 || endOfTextIdx > length) {
@@ -131,10 +144,10 @@ public class TextSummaryExtractor {
 	 * skips templates in wikipedia markup. Templates are enclosed within braces
 	 * {}. There might be nested templates within an other template.
 	 * 
-	 * @param pText :
-	 *            the wikipedia text with templates
-	 * @param pIdx,
-	 *            pos in text to start with, MUST be a {
+	 * @param pText
+	 *            : the wikipedia text with templates
+	 * @param pIdx
+	 *            , pos in text to start with, MUST be a {
 	 * @return the idx into the text where the template ends, or the last
 	 *         character in the text if it does not properly end.
 	 */
@@ -165,8 +178,8 @@ public class TextSummaryExtractor {
 
 	/**
 	 * @param pText
-	 * @param pIdx,
-	 *            pos in text to start with, MUST be a {
+	 * @param pIdx
+	 *            , pos in text to start with, MUST be a {
 	 * @return
 	 */
 	static int skipHTMLElement(String pText, int pIdx) {
@@ -187,7 +200,7 @@ public class TextSummaryExtractor {
 		return idx;
 	}
 
-	/**
+/**
 	 * @param pText
 	 * @param pIdx,
 	 *            pos in text to start with, MUST be a '<'
@@ -253,6 +266,10 @@ public class TextSummaryExtractor {
 			}
 		}
 		return buf.toString();
+	}
+
+	public static String removeBold(String pString) {
+		return pString.replaceAll("'''", "");
 	}
 
 }
