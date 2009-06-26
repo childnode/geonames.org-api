@@ -32,6 +32,9 @@ public class TextSummaryExtractor {
 	 * @return
 	 */
 	public static String extractSummary(String pText, int length) {
+		if (pText == null) {
+			return null;
+		}
 
 		// remove all wikipedia markup (paragraphs are kept)
 		//
@@ -107,10 +110,12 @@ public class TextSummaryExtractor {
 			idx++;
 		}
 
-		String textString = removeWhiteSpace(
-				summary.toString().replaceAll("\r", " ").replaceAll("\n", " ")
+		String textString = removeIndentAtBeginning(summary.toString());
+		textString = removeWhiteSpace(
+				textString.replaceAll("\r", " ").replaceAll("\n", " ")
 						.replaceAll("\t", " ")).trim();
 		textString = removeBold(textString);
+		textString = removeItalic(textString);
 
 		// convert 'non breaking html spaces' into blanks. But preserve them
 		// (don't remove white space)
@@ -225,6 +230,26 @@ public class TextSummaryExtractor {
 		return idx;
 	}
 
+	private static String removeIndentAtBeginning(String pText) {
+		pText = pText.trim();
+		if (pText.startsWith(":")) {
+			int lineFeed = pText.indexOf("\n");
+			if (lineFeed > -1) {
+				pText = pText.substring(lineFeed + 1);
+			} else {
+				// we may already have removed the linefeed
+				// check for italics
+				if (pText.startsWith(":''")) {
+					int italic = pText.indexOf("''", 3);
+					if (italic > -1) {
+						pText = pText.substring(italic + 2);
+					}
+				}
+			}
+		}
+		return pText;
+	}
+
 	private static int findEndOfLink(String pText, int pIdx) {
 		int end = pText.indexOf("]]", pIdx);
 		if (end == -1) {
@@ -232,11 +257,11 @@ public class TextSummaryExtractor {
 		}
 
 		int idx = pIdx;
-		int openingIdx = pText.indexOf("[[", idx);
+		int openingIdx = pText.indexOf("[[", idx + 2);
 		while (openingIdx > -1 && openingIdx < end) {
 			idx = end;
 			end = pText.indexOf("]]", end + 2);
-			openingIdx = pText.indexOf("[[", end);
+			openingIdx = pText.indexOf("[[", idx);
 		}
 		if (end != -1) {
 			idx = end;
@@ -270,6 +295,10 @@ public class TextSummaryExtractor {
 
 	public static String removeBold(String pString) {
 		return pString.replaceAll("'''", "");
+	}
+
+	public static String removeItalic(String pString) {
+		return pString.replaceAll("''", "");
 	}
 
 }
