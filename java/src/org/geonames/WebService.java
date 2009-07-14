@@ -497,6 +497,39 @@ public class WebService {
 		return places;
 	}
 
+	public static List<Toponym> findNearby(double latitude, double longitude,
+			FeatureClass featureClass, String[] featureCodes)
+			throws IOException, Exception {
+		List<Toponym> places = new ArrayList<Toponym>();
+
+		String url = "/findNearby?";
+
+		url += "&lat=" + latitude;
+		url += "&lng=" + longitude;
+		if (featureClass != null) {
+			url += "&featureClass=" + featureClass;
+		}
+		if (featureCodes != null && featureCodes.length > 0) {
+			for (String featureCode : featureCodes) {
+				url += "&featureCode=" + featureCode;
+			}
+		}
+		url = addUserName(url);
+		url = addDefaultStyle(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("geoname")) {
+			Element toponymElement = (Element) obj;
+			Toponym toponym = getToponymFromElement(toponymElement);
+			places.add(toponym);
+		}
+
+		return places;
+	}
+
 	public static Address findNearestAddress(double latitude, double longitude)
 			throws IOException, Exception {
 
