@@ -1148,7 +1148,10 @@ public class WebService {
 				connect(url)));
 		String cc = in.readLine();
 		in.close();
-		return cc;
+		if (cc != null && cc.length() != 2) {
+			return cc;
+		}
+		return null;
 	}
 
 	/**
