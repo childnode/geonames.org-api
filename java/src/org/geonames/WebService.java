@@ -697,12 +697,16 @@ public class WebService {
 	/**
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
+	 * The string fields will be transparently utf8 encoded within the call.
+	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
 	 *      * web service documentation< /a>
 	 * 
 	 * @param q
+	 *            search over all fields
 	 * @param countryCode
 	 * @param name
+	 *            search over name only
 	 * @param featureCodes
 	 * @param startRow
 	 * @param language
@@ -735,6 +739,16 @@ public class WebService {
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
 	 *      * web service documentation< /a>
+	 * 
+	 * <br>
+	 *      <pre>
+	 * ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
+	 * searchCriteria.setQ(&quot;zürich&quot;);
+	 * ToponymSearchResult searchResult = WebService.search(searchCriteria);
+	 * for (Toponym toponym : searchResult.toponyms) {
+	 * 	System.out.println(toponym.getName() + &quot; &quot; + toponym.getCountryName());
+	 * }
+	 * </pre>
 	 * 
 	 * 
 	 * @param searchCriteria

@@ -19,10 +19,15 @@ package org.geonames;
 /**
  * search criteria for web services returning toponyms.
  * 
+ * The string parameters do not have to be utf8 encoded. The encoding is done
+ * transparently in the call to the web service.
+ * 
+ * The main parameter for the search over all fields is the 'q' parameter.
+ * 
  * @see WebService#search
  * 
  * @see <a href="http://www.geonames.org/export/geonames-search.html">search web
- *      service documentation</a>
+ *      * service documentation< /a>
  * 
  * @author marc@geonames
  * 
@@ -153,6 +158,8 @@ public class ToponymSearchCriteria {
 	}
 
 	/**
+	 * search over the name field only.
+	 * 
 	 * @param name
 	 *            The name to set.
 	 */
@@ -168,6 +175,9 @@ public class ToponymSearchCriteria {
 	}
 
 	/**
+	 * The main search term. The search is executed over all fields (place name,
+	 * country name, admin names, etc)
+	 * 
 	 * @param q
 	 *            The q to set.
 	 */
