@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -741,6 +742,7 @@ public class WebService {
 	 *      * web service documentation< /a>
 	 * 
 	 * <br>
+	 * 
 	 *      <pre>
 	 * ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
 	 * searchCriteria.setQ(&quot;zürich&quot;);
@@ -1122,9 +1124,68 @@ public class WebService {
 		url = addUserName(url);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				connect(url)));
-		String gtopo30 = in.readLine();
+		String srtm3 = in.readLine();
 		in.close();
-		return Integer.parseInt(gtopo30);
+		return Integer.parseInt(srtm3);
+	}
+
+	public static int[] srtm3(double[] latitude, double[] longitude)
+			throws IOException {
+		if (latitude.length != longitude.length) {
+			throw new Error("number of lats and longs must be equal");
+		}
+		int[] elevation = new int[latitude.length];
+		String lats = "";
+		String lngs = "";
+		for (int i = 0; i < elevation.length; i++) {
+			lats += latitude[i] + ",";
+			lngs += longitude[i] + ",";
+		}
+		String url = "/srtm3?lats=" + lats + "&lngs=" + lngs;
+		url = addUserName(url);
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connect(url)));
+		for (int i = 0; i < elevation.length; i++) {
+			String srtm3 = in.readLine();
+			elevation[i] = Integer.parseInt(srtm3);
+		}
+		in.close();
+		return elevation;
+	}
+
+	public static int astergdem(double latitude, double longitude)
+			throws IOException {
+		String url = "/astergdem?lat=" + latitude + "&lng=" + longitude;
+		url = addUserName(url);
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connect(url)));
+		String astergdem = in.readLine();
+		in.close();
+		return Integer.parseInt(astergdem);
+	}
+
+	public static int[] astergdem(double[] latitude, double[] longitude)
+			throws IOException {
+		if (latitude.length != longitude.length) {
+			throw new Error("number of lats and longs must be equal");
+		}
+		int[] elevation = new int[latitude.length];
+		String lats = "";
+		String lngs = "";
+		for (int i = 0; i < elevation.length; i++) {
+			lats += latitude[i] + ",";
+			lngs += longitude[i] + ",";
+		}
+		String url = "/astergdem?lats=" + lats + "&lngs=" + lngs;
+		url = addUserName(url);
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connect(url)));
+		for (int i = 0; i < elevation.length; i++) {
+			String astergdem = in.readLine();
+			elevation[i] = Integer.parseInt(astergdem);
+		}
+		in.close();
+		return elevation;
 	}
 
 	/**
@@ -1340,5 +1401,4 @@ public class WebService {
 	public static void setConnectTimeOut(int connectTimeOut) {
 		WebService.connectTimeOut = connectTimeOut;
 	}
-
 }
