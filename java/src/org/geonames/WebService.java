@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Marc Wick, geonames.org
+ * Copyright 2008-2010 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +49,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.2";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.3";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -952,6 +951,54 @@ public class WebService {
 		return searchResult;
 	}
 
+	/**
+	 * returns the hierarchy for a geonameId
+	 * 
+	 * @see <a
+	 *      href="http://www.geonames.org/export/place-hierarchy.html#hierarchy">Hierarchy
+	 *      service description</a>
+	 * 
+	 * @param geonameId
+	 * @param language
+	 * @param style
+	 * @return
+	 * @throws Exception
+	 */
+	public static List<Toponym> hierarchy(int geonameId, String language,
+			Style style) throws Exception {
+
+		String url = "/hierarchy?";
+
+		url = url + "geonameId=" + geonameId;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+
+		if (style != null) {
+			url = url + "&style=" + style;
+		} else {
+			url = addDefaultStyle(url);
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+
+		checkException(root);
+
+		List<Toponym> toponyms = new ArrayList<Toponym>();
+		for (Object obj : root.getChildren("geoname")) {
+			Element toponymElement = (Element) obj;
+			Toponym toponym = getToponymFromElement(toponymElement);
+			toponyms.add(toponym);
+		}
+
+		return toponyms;
+	}
+
 	public static void saveTags(String[] tags, Toponym toponym,
 			String username, String password) throws Exception {
 		if (toponym.getGeoNameId() == 0) {
@@ -1401,4 +1448,5 @@ public class WebService {
 	public static void setConnectTimeOut(int connectTimeOut) {
 		WebService.connectTimeOut = connectTimeOut;
 	}
+
 }
