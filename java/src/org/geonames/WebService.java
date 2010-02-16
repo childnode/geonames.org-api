@@ -744,7 +744,7 @@ public class WebService {
 	 * 
 	 *      <pre>
 	 * ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
-	 * searchCriteria.setQ(&quot;zürich&quot;);
+	 * searchCriteria.setQ(&quot;zï¿½rich&quot;);
 	 * ToponymSearchResult searchResult = WebService.search(searchCriteria);
 	 * for (Toponym toponym : searchResult.toponyms) {
 	 * 	System.out.println(toponym.getName() + &quot; &quot; + toponym.getCountryName());
@@ -1109,6 +1109,54 @@ public class WebService {
 
 		url = url + "lat=" + latitude;
 		url = url + "&lng=" + longitude;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("entry")) {
+			Element wikipediaArticleElement = (Element) obj;
+			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
+			articles.add(wikipediaArticle);
+		}
+
+		return articles;
+	}
+
+	/* Overload function to allow backward compatibility */
+	/** Based on the following inforamtion:
+	 * 	Webservice Type : JSON 
+	 *      ws.geonames.org/findNearbyWikipediaRSS?
+	 *      Parameters : 
+	 *      lang : language code (around 240 languages) (default = en)
+	 *      lat,lng, radius (in km), 
+	 *      maxRows (default = 5)
+	 *  Example:
+	 *      http://ws.geonames.org/findNearbyWikipedia?lat=47&lng=9
+	 *      
+	 * @param: latitude
+	 * @param: longitude
+	 * @param: radius
+	 * @param: language
+	 * @param: maxRows
+	 * @return: list of wikipedia articles
+	 * @throws: Exception
+	 */
+	public static List<WikipediaArticle> findNearbyWikipedia(double latitude, double longitude, double radius, String language, int maxRows) throws Exception {
+
+		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
+
+		String url = "/findNearbyWikipedia?";
+
+		url = url + "lat=" + latitude;
+		url = url + "&lng=" + longitude;
+		url = url + "&radius=" + radius;
+		url = url + "&maxRows=" + maxRows;
 
 		if (language != null) {
 			url = url + "&lang=" + language;
