@@ -530,6 +530,72 @@ public class WebService {
 		return places;
 	}
 
+	/* Overload function to allow backward compatibility */
+	/** Based on the following inforamtion:
+	 * 	Webservice Type : REST 
+	 *      ws.geonames.org/findNearbyWikipedia?
+	 *      Parameters : 
+	 *      lang : language code (around 240 languages) (default = en)
+	 *      lat,lng, 
+	 *      radius (in km), 
+	 *      maxRows (default = 10)
+	 *      featureClass
+	 *      featureCode
+	 *  Example:
+	 *      http://ws.geonames.org/findNearby?lat=47.3&lng=9
+	 *      
+	 * @param: latitude
+	 * @param: longitude
+	 * @param: radius
+	 * @param: feature Class
+	 * @param: feature Codes
+	 * @param: language
+	 * @param: maxRows
+	 * @return: list of wikipedia articles
+	 * @throws: Exception
+	 */
+	public static List<Toponym> findNearby(double latitude, double longitude, double radius,
+			FeatureClass featureClass, String[] featureCodes, String language, int maxRows )
+			throws IOException, Exception {
+		List<Toponym> places = new ArrayList<Toponym>();
+
+		String url = "/findNearby?";
+
+		url += "&lat=" + latitude;
+		url += "&lng=" + longitude;
+		url = url + "&radius=" + radius;
+		url = url + "&maxRows=" + maxRows;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+
+		if (featureClass != null) {
+			url += "&featureClass=" + featureClass;
+		}
+		if (featureCodes != null && featureCodes.length > 0) {
+			for (String featureCode : featureCodes) {
+				url += "&featureCode=" + featureCode;
+			}
+		}
+
+		url = addUserName(url);
+		url = addDefaultStyle(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("geoname")) {
+			Element toponymElement = (Element) obj;
+			Toponym toponym = getToponymFromElement(toponymElement);
+			places.add(toponym);
+		}
+
+		return places;
+	}
+
+
 	public static Address findNearestAddress(double latitude, double longitude)
 			throws IOException, Exception {
 
@@ -1130,8 +1196,8 @@ public class WebService {
 
 	/* Overload function to allow backward compatibility */
 	/** Based on the following inforamtion:
-	 * 	Webservice Type : JSON 
-	 *      ws.geonames.org/findNearbyWikipediaRSS?
+	 * 	Webservice Type : REST 
+	 *      ws.geonames.org/findNearbyWikipedia?
 	 *      Parameters : 
 	 *      lang : language code (around 240 languages) (default = en)
 	 *      lat,lng, radius (in km), 
