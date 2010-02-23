@@ -49,7 +49,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.3";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.4";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -500,50 +500,17 @@ public class WebService {
 	public static List<Toponym> findNearby(double latitude, double longitude,
 			FeatureClass featureClass, String[] featureCodes)
 			throws IOException, Exception {
-		List<Toponym> places = new ArrayList<Toponym>();
-
-		String url = "/findNearby?";
-
-		url += "&lat=" + latitude;
-		url += "&lng=" + longitude;
-		if (featureClass != null) {
-			url += "&featureClass=" + featureClass;
-		}
-		if (featureCodes != null && featureCodes.length > 0) {
-			for (String featureCode : featureCodes) {
-				url += "&featureCode=" + featureCode;
-			}
-		}
-		url = addUserName(url);
-		url = addDefaultStyle(url);
-
-		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(connect(url));
-
-		Element root = doc.getRootElement();
-		for (Object obj : root.getChildren("geoname")) {
-			Element toponymElement = (Element) obj;
-			Toponym toponym = getToponymFromElement(toponymElement);
-			places.add(toponym);
-		}
-
-		return places;
+		return findNearby(latitude, longitude, 0, featureClass, featureCodes, null, 0);
 	}
 
 	/* Overload function to allow backward compatibility */
-	/** Based on the following inforamtion:
-	 * 	Webservice Type : REST 
-	 *      ws.geonames.org/findNearbyWikipedia?
-	 *      Parameters : 
-	 *      lang : language code (around 240 languages) (default = en)
-	 *      lat,lng, 
-	 *      radius (in km), 
-	 *      maxRows (default = 10)
-	 *      featureClass
-	 *      featureCode
-	 *  Example:
-	 *      http://ws.geonames.org/findNearby?lat=47.3&lng=9
-	 *      
+	/**
+	 * Based on the following inforamtion: Webservice Type : REST
+	 * ws.geonames.org/findNearbyWikipedia? Parameters : lang : language code
+	 * (around 240 languages) (default = en) lat,lng, radius (in km), maxRows
+	 * (default = 10) featureClass featureCode Example:
+	 * http://ws.geonames.org/findNearby?lat=47.3&lng=9
+	 * 
 	 * @param: latitude
 	 * @param: longitude
 	 * @param: radius
@@ -554,17 +521,21 @@ public class WebService {
 	 * @return: list of wikipedia articles
 	 * @throws: Exception
 	 */
-	public static List<Toponym> findNearby(double latitude, double longitude, double radius,
-			FeatureClass featureClass, String[] featureCodes, String language, int maxRows )
-			throws IOException, Exception {
+	public static List<Toponym> findNearby(double latitude, double longitude,
+			double radius, FeatureClass featureClass, String[] featureCodes,
+			String language, int maxRows) throws IOException, Exception {
 		List<Toponym> places = new ArrayList<Toponym>();
 
 		String url = "/findNearby?";
 
 		url += "&lat=" + latitude;
 		url += "&lng=" + longitude;
-		url = url + "&radius=" + radius;
-		url = url + "&maxRows=" + maxRows;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
+		if (maxRows > 0) {
+			url = url + "&maxRows=" + maxRows;
+		}
 
 		if (language != null) {
 			url = url + "&lang=" + language;
@@ -594,7 +565,6 @@ public class WebService {
 
 		return places;
 	}
-
 
 	public static Address findNearestAddress(double latitude, double longitude)
 			throws IOException, Exception {
@@ -682,9 +652,7 @@ public class WebService {
 
 	/**
 	 * 
-	 * @see <a * href=
-	 *      "http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets"
-	 *      > * web service documentation< /a>
+	 * @see <a * href="http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets"> web service documentation</a>
 	 * 
 	 * @param latitude
 	 * @param longitude
@@ -744,7 +712,7 @@ public class WebService {
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      * web service documentation< /a>
+	 *  web service documentation</a>
 	 * 
 	 * @param q
 	 * @param countryCode
@@ -766,7 +734,7 @@ public class WebService {
 	 * The string fields will be transparently utf8 encoded within the call.
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      * web service documentation< /a>
+	 *  web service documentation</a>
 	 * 
 	 * @param q
 	 *            search over all fields
@@ -804,13 +772,13 @@ public class WebService {
 	 * the service.
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *      * web service documentation< /a>
+	 *  web service documentation</a>
 	 * 
 	 * <br>
 	 * 
 	 *      <pre>
 	 * ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
-	 * searchCriteria.setQ(&quot;z�rich&quot;);
+	 * searchCriteria.setQ(&quot;z&uuml;rich&quot;);
 	 * ToponymSearchResult searchResult = WebService.search(searchCriteria);
 	 * for (Toponym toponym : searchResult.toponyms) {
 	 * 	System.out.println(toponym.getName() + &quot; &quot; + toponym.getCountryName());
@@ -1168,43 +1136,17 @@ public class WebService {
 
 	public static List<WikipediaArticle> findNearbyWikipedia(double latitude,
 			double longitude, String language) throws Exception {
-
-		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
-
-		String url = "/findNearbyWikipedia?";
-
-		url = url + "lat=" + latitude;
-		url = url + "&lng=" + longitude;
-
-		if (language != null) {
-			url = url + "&lang=" + language;
-		}
-		url = addUserName(url);
-
-		SAXBuilder parser = new SAXBuilder();
-		Document doc = parser.build(connect(url));
-
-		Element root = doc.getRootElement();
-		for (Object obj : root.getChildren("entry")) {
-			Element wikipediaArticleElement = (Element) obj;
-			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
-			articles.add(wikipediaArticle);
-		}
-
-		return articles;
+		return findNearbyWikipedia(latitude, longitude, 0, language, 0);
 	}
 
 	/* Overload function to allow backward compatibility */
-	/** Based on the following inforamtion:
-	 * 	Webservice Type : REST 
-	 *      ws.geonames.org/findNearbyWikipedia?
-	 *      Parameters : 
-	 *      lang : language code (around 240 languages) (default = en)
-	 *      lat,lng, radius (in km), 
-	 *      maxRows (default = 5)
-	 *  Example:
-	 *      http://ws.geonames.org/findNearbyWikipedia?lat=47&lng=9
-	 *      
+	/**
+	 * Based on the following inform: Webservice Type : REST
+	 * ws.geonames.org/findNearbyWikipedia? Parameters : lang : language code
+	 * (around 240 languages) (default = en) lat,lng, radius (in km), maxRows
+	 * (default = 5) Example:
+	 * http://ws.geonames.org/findNearbyWikipedia?lat=47&lng=9
+	 * 
 	 * @param: latitude
 	 * @param: longitude
 	 * @param: radius
@@ -1213,7 +1155,9 @@ public class WebService {
 	 * @return: list of wikipedia articles
 	 * @throws: Exception
 	 */
-	public static List<WikipediaArticle> findNearbyWikipedia(double latitude, double longitude, double radius, String language, int maxRows) throws Exception {
+	public static List<WikipediaArticle> findNearbyWikipedia(double latitude,
+			double longitude, double radius, String language, int maxRows)
+			throws Exception {
 
 		List<WikipediaArticle> articles = new ArrayList<WikipediaArticle>();
 
@@ -1221,8 +1165,12 @@ public class WebService {
 
 		url = url + "lat=" + latitude;
 		url = url + "&lng=" + longitude;
-		url = url + "&radius=" + radius;
-		url = url + "&maxRows=" + maxRows;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
+		if (maxRows > 0) {
+			url = url + "&maxRows=" + maxRows;
+		}
 
 		if (language != null) {
 			url = url + "&lang=" + language;
