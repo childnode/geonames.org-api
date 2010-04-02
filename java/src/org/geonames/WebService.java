@@ -823,6 +823,10 @@ public class WebService {
 		if (searchCriteria.getCountryCode() != null) {
 			url = url + "&country=" + searchCriteria.getCountryCode();
 		}
+		
+		if (searchCriteria.getContinentCode() != null) {
+			url = url + "&continentCode=" + searchCriteria.getContinentCode();
+		}
 
 		if (searchCriteria.getAdminCode1() != null) {
 			url = url + "&adminCode1="
