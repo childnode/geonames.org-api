@@ -49,7 +49,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.4";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.5";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -1330,7 +1330,7 @@ public class WebService {
 	 */
 	public static String countryCode(double latitude, double longitude,
 			double radius) throws IOException {
-		String url = "/countrycode?lat=" + latitude + "&lng=" + longitude;
+		String url = "/countryCode?lat=" + latitude + "&lng=" + longitude;
 		if (radius != 0) {
 			url += "&radius=" + radius;
 		}
