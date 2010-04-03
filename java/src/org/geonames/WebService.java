@@ -132,7 +132,10 @@ public class WebService {
 		}
 		// the problems have been very recent and we continue with failover
 		// server
-		return geoNamesServerFailover;
+		if (geoNamesServerFailover != null) {
+			return geoNamesServerFailover;			
+		}
+		return geoNamesServer;
 	}
 
 	/**
@@ -1336,7 +1339,7 @@ public class WebService {
 				connect(url)));
 		String cc = in.readLine();
 		in.close();
-		if (cc != null && cc.length() != 2) {
+		if (cc != null && cc.length() == 2) {
 			return cc;
 		}
 		return null;
