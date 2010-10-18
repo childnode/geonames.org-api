@@ -133,7 +133,7 @@ public class WebService {
 		// the problems have been very recent and we continue with failover
 		// server
 		if (geoNamesServerFailover != null) {
-			return geoNamesServerFailover;			
+			return geoNamesServerFailover;
 		}
 		return geoNamesServer;
 	}
@@ -347,6 +347,10 @@ public class WebService {
 		if (postalCodeSearchCriteria.isOROperator()) {
 			url = url + "&operator=OR";
 		}
+		if (postalCodeSearchCriteria.isReduced() != null) {
+			url = url + "&isReduced="
+					+ postalCodeSearchCriteria.isReduced().toString();
+		}
 		url = addUserName(url);
 
 		SAXBuilder parser = new SAXBuilder();
@@ -503,7 +507,8 @@ public class WebService {
 	public static List<Toponym> findNearby(double latitude, double longitude,
 			FeatureClass featureClass, String[] featureCodes)
 			throws IOException, Exception {
-		return findNearby(latitude, longitude, 0, featureClass, featureCodes, null, 0);
+		return findNearby(latitude, longitude, 0, featureClass, featureCodes,
+				null, 0);
 	}
 
 	/* Overload function to allow backward compatibility */
@@ -655,7 +660,9 @@ public class WebService {
 
 	/**
 	 * 
-	 * @see <a * href="http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets"> web service documentation</a>
+	 * @see <a * href=
+	 *      "http://www.geonames.org/maps/reverse-geocoder.html#findNearbyStreets"
+	 *      > web service documentation</a>
 	 * 
 	 * @param latitude
 	 * @param longitude
@@ -715,7 +722,7 @@ public class WebService {
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *  web service documentation</a>
+	 *      web service documentation</a>
 	 * 
 	 * @param q
 	 * @param countryCode
@@ -737,7 +744,7 @@ public class WebService {
 	 * The string fields will be transparently utf8 encoded within the call.
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *  web service documentation</a>
+	 *      web service documentation</a>
 	 * 
 	 * @param q
 	 *            search over all fields
@@ -775,13 +782,13 @@ public class WebService {
 	 * the service.
 	 * 
 	 * @see <a href="http://www.geonames.org/export/geonames-search.html">search
-	 *  web service documentation</a>
+	 *      web service documentation</a>
 	 * 
 	 * <br>
 	 * 
 	 *      <pre>
 	 * ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
-	 * searchCriteria.setQ(&quot;z&uuml;rich&quot;);
+	 * searchCriteria.setQ(&quot;z&amp;uumlrich&quot;);
 	 * ToponymSearchResult searchResult = WebService.search(searchCriteria);
 	 * for (Toponym toponym : searchResult.toponyms) {
 	 * 	System.out.println(toponym.getName() + &quot; &quot; + toponym.getCountryName());
@@ -826,7 +833,7 @@ public class WebService {
 		if (searchCriteria.getCountryCode() != null) {
 			url = url + "&country=" + searchCriteria.getCountryCode();
 		}
-		
+
 		if (searchCriteria.getContinentCode() != null) {
 			url = url + "&continentCode=" + searchCriteria.getContinentCode();
 		}

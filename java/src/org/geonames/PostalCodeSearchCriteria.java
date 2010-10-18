@@ -48,6 +48,8 @@ public class PostalCodeSearchCriteria {
 
 	private boolean isOROperator = false;
 
+	private Boolean isReduced;
+
 	/**
 	 * @return Returns the style.
 	 */
@@ -240,6 +242,21 @@ public class PostalCodeSearchCriteria {
 	 */
 	public void setStartRow(int startRow) {
 		this.startRow = startRow;
+	}
+
+	/**
+	 * @return the isReduced
+	 */
+	public Boolean isReduced() {
+		return isReduced;
+	}
+
+	/**
+	 * @param isReduced
+	 *            the isReduced to set
+	 */
+	public void setIsReduced(Boolean isReduced) {
+		this.isReduced = isReduced;
 	}
 
 }
