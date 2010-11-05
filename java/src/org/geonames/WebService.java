@@ -592,6 +592,7 @@ public class WebService {
 			Address address = new Address();
 			address.setStreet(codeElement.getChildText("street"));
 			address.setStreetNumber(codeElement.getChildText("streetNumber"));
+			address.setMtfcc(codeElement.getChildText("mtfcc"));
 
 			address.setPostalCode(codeElement.getChildText("postalcode"));
 			address.setPlaceName(codeElement.getChildText("placename"));

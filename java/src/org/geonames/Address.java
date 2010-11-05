@@ -28,6 +28,8 @@ public class Address extends PostalCode {
 
 	private String streetNumber;
 
+	private String mtfcc;
+
 	/**
 	 * @return the street
 	 */
@@ -56,6 +58,21 @@ public class Address extends PostalCode {
 	 */
 	public void setStreetNumber(String streetNumber) {
 		this.streetNumber = streetNumber;
+	}
+
+	/**
+	 * @return the mtfcc
+	 */
+	public String getMtfcc() {
+		return mtfcc;
+	}
+
+	/**
+	 * @param mtfcc
+	 *            the mtfcc to set
+	 */
+	public void setMtfcc(String mtfcc) {
+		this.mtfcc = mtfcc;
 	}
 
 }
