@@ -26,8 +26,7 @@ package org.geonames;
  * 
  * @see WebService#search
  * 
- * @see <a href="http://www.geonames.org/export/geonames-search.html">search web
- *      * service documentation< /a>
+ * @see <a href="http://www.geonames.org/export/geonames-search.html">search webservice documentation< /a>
  * 
  * @author marc@geonames
  * 
@@ -37,6 +36,8 @@ public class ToponymSearchCriteria {
 	private String q;
 
 	private String countryCode;
+	
+	private String continentCode;
 
 	private String name;
 
@@ -84,6 +85,20 @@ public class ToponymSearchCriteria {
 					+ countryCode);
 		}
 		this.countryCode = countryCode;
+	}
+
+	/**
+	 * @return the continentCode
+	 */
+	public String getContinentCode() {
+		return continentCode;
+	}
+
+	/**
+	 * @param continentCode the continentCode to set
+	 */
+	public void setContinentCode(String continentCode) {
+		this.continentCode = continentCode;
 	}
 
 	/**

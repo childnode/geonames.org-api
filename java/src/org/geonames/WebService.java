@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -62,6 +63,8 @@ public class WebService {
 	private static int readTimeOut = 120000;
 
 	private static int connectTimeOut = 10000;
+
+	private static String DATEFMT = "yyyy-MM-dd HH:mm:ss";
 
 	/**
 	 * user name to pass to commercial web services for authentication and
@@ -1379,11 +1382,92 @@ public class WebService {
 			Element codeElement = (Element) obj;
 			Timezone timezone = new Timezone();
 			timezone.setTimezoneId(codeElement.getChildText("timezoneId"));
+			timezone.setCountryCode(codeElement.getChildText("countryCode"));
+
+			String minuteDateFmt = "yyyy-MM-dd HH:mm";
+			SimpleDateFormat df = null;
+			if (codeElement.getChildText("time").length() == minuteDateFmt
+					.length()) {
+				df = new SimpleDateFormat(minuteDateFmt);
+
+			} else {
+				df = new SimpleDateFormat(DATEFMT);
+			}
+			timezone.setTime(df.parse(codeElement.getChildText("time")));
+			timezone.setSunrise(df.parse(codeElement.getChildText("sunrise")));
+			timezone.setSunset(df.parse(codeElement.getChildText("sunset")));
+
 			timezone.setGmtOffset(Double.parseDouble(codeElement
 					.getChildText("gmtOffset")));
 			timezone.setDstOffset(Double.parseDouble(codeElement
 					.getChildText("dstOffset")));
 			return timezone;
+		}
+
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static WeatherObservation findNearByWeather(double latitude,
+			double longitude) throws IOException, Exception {
+
+		String url = "/findNearByWeatherXML?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("observation")) {
+			Element codeElement = (Element) obj;
+			WeatherObservation weatherObservation = new WeatherObservation();
+			weatherObservation.setObservation(codeElement
+					.getChildText("observation"));
+			SimpleDateFormat df = new SimpleDateFormat(DATEFMT);
+			weatherObservation.setObservationTime(df.parse(codeElement
+					.getChildText("observationTime")));
+			weatherObservation.setStationName(codeElement
+					.getChildText("stationName"));
+			weatherObservation.setIcaoCode(codeElement.getChildText("ICAO"));
+			weatherObservation.setCountryCode(codeElement
+					.getChildText("countryCode"));
+			String elevation = codeElement.getChildText("elevation");
+			if (elevation != null && !"".equals(elevation)) {
+				weatherObservation.setElevation(Integer.parseInt(elevation));
+			}
+			weatherObservation.setLatitude(Double.parseDouble(codeElement
+					.getChildText("lat")));
+			weatherObservation.setLongitude(Double.parseDouble(codeElement
+					.getChildText("lng")));
+			String temperature = codeElement.getChildText("temperature");
+			if (temperature != null && !"".equals(temperature)) {
+				weatherObservation.setTemperature(Double
+						.parseDouble(temperature));
+			}
+			String dewPoint = codeElement.getChildText("dewPoint");
+			if (dewPoint != null && !"".equals(dewPoint)) {
+				weatherObservation.setDewPoint(Double.parseDouble(dewPoint));
+			}
+			String humidity = codeElement.getChildText("humidity");
+			if (humidity != null && !"".equals(humidity)) {
+				weatherObservation.setHumidity(Double.parseDouble(humidity));
+			}
+			weatherObservation.setClouds(codeElement.getChildText("clouds"));
+			weatherObservation.setWeatherCondition(codeElement
+					.getChildText("weatherCondition"));
+			weatherObservation.setWindSpeed(codeElement
+					.getChildText("windSpeed"));
+			return weatherObservation;
 		}
 
 		return null;

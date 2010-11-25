@@ -16,6 +16,8 @@
  */
 package org.geonames;
 
+import java.util.Date;
+
 /**
  * gmtOffset and dstOffset are computed on the server with the
  * {@link java.util.TimeZone} and included in the web service as not all
@@ -27,9 +29,15 @@ package org.geonames;
 public class Timezone {
 
 	private String timezoneId;
+	private String countryCode;
+	private Date time;
+	private Date sunrise;
+	private Date sunset;
 
+	@Deprecated
 	private double gmtOffset;
 
+	@Deprecated
 	private double dstOffset;
 
 	/**
@@ -37,6 +45,7 @@ public class Timezone {
 	 * 
 	 * @return the dstOffset
 	 */
+	@Deprecated
 	public double getDstOffset() {
 		return dstOffset;
 	}
@@ -54,6 +63,7 @@ public class Timezone {
 	 * 
 	 * @return the gmtOffset
 	 */
+	@Deprecated
 	public double getGmtOffset() {
 		return gmtOffset;
 	}
@@ -84,6 +94,66 @@ public class Timezone {
 	 */
 	public void setTimezoneId(String timezoneId) {
 		this.timezoneId = timezoneId;
+	}
+
+	/**
+	 * @return the countryCode
+	 */
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	/**
+	 * @param countryCode
+	 *            the countryCode to set
+	 */
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
+
+	/**
+	 * @return the time
+	 */
+	public Date getTime() {
+		return time;
+	}
+
+	/**
+	 * @param time
+	 *            the time to set
+	 */
+	public void setTime(Date time) {
+		this.time = time;
+	}
+
+	/**
+	 * @return the sunrise
+	 */
+	public Date getSunrise() {
+		return sunrise;
+	}
+
+	/**
+	 * @param sunrise
+	 *            the sunrise to set
+	 */
+	public void setSunrise(Date sunrise) {
+		this.sunrise = sunrise;
+	}
+
+	/**
+	 * @return the sunset
+	 */
+	public Date getSunset() {
+		return sunset;
+	}
+
+	/**
+	 * @param sunset
+	 *            the sunset to set
+	 */
+	public void setSunset(Date sunset) {
+		this.sunset = sunset;
 	}
 
 }
