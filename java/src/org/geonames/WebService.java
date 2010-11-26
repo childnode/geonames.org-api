@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -272,6 +273,52 @@ public class WebService {
 			wikipediaArticle.setElevation(Integer.parseInt(elevation));
 		}
 		return wikipediaArticle;
+	}
+
+	private static WeatherObservation getWeatherObservationFromElement(
+			Element weatherObservationElement) throws ParseException {
+		WeatherObservation weatherObservation = new WeatherObservation();
+		weatherObservation.setObservation(weatherObservationElement
+				.getChildText("observation"));
+		SimpleDateFormat df = new SimpleDateFormat(DATEFMT);
+		weatherObservation.setObservationTime(df
+				.parse(weatherObservationElement
+						.getChildText("observationTime")));
+		weatherObservation.setStationName(weatherObservationElement
+				.getChildText("stationName"));
+		weatherObservation.setIcaoCode(weatherObservationElement
+				.getChildText("ICAO"));
+		weatherObservation.setCountryCode(weatherObservationElement
+				.getChildText("countryCode"));
+		String elevation = weatherObservationElement.getChildText("elevation");
+		if (elevation != null && !"".equals(elevation)) {
+			weatherObservation.setElevation(Integer.parseInt(elevation));
+		}
+		weatherObservation.setLatitude(Double
+				.parseDouble(weatherObservationElement.getChildText("lat")));
+		weatherObservation.setLongitude(Double
+				.parseDouble(weatherObservationElement.getChildText("lng")));
+		String temperature = weatherObservationElement
+				.getChildText("temperature");
+		if (temperature != null && !"".equals(temperature)) {
+			weatherObservation.setTemperature(Double.parseDouble(temperature));
+		}
+		String dewPoint = weatherObservationElement.getChildText("dewPoint");
+		if (dewPoint != null && !"".equals(dewPoint)) {
+			weatherObservation.setDewPoint(Double.parseDouble(dewPoint));
+		}
+		String humidity = weatherObservationElement.getChildText("humidity");
+		if (humidity != null && !"".equals(humidity)) {
+			weatherObservation.setHumidity(Double.parseDouble(humidity));
+		}
+		weatherObservation.setClouds(weatherObservationElement
+				.getChildText("clouds"));
+		weatherObservation.setWeatherCondition(weatherObservationElement
+				.getChildText("weatherCondition"));
+		weatherObservation.setWindSpeed(weatherObservationElement
+				.getChildText("windSpeed"));
+		return weatherObservation;
+
 	}
 
 	/**
@@ -1429,50 +1476,34 @@ public class WebService {
 
 		Element root = doc.getRootElement();
 		for (Object obj : root.getChildren("observation")) {
-			Element codeElement = (Element) obj;
-			WeatherObservation weatherObservation = new WeatherObservation();
-			weatherObservation.setObservation(codeElement
-					.getChildText("observation"));
-			SimpleDateFormat df = new SimpleDateFormat(DATEFMT);
-			weatherObservation.setObservationTime(df.parse(codeElement
-					.getChildText("observationTime")));
-			weatherObservation.setStationName(codeElement
-					.getChildText("stationName"));
-			weatherObservation.setIcaoCode(codeElement.getChildText("ICAO"));
-			weatherObservation.setCountryCode(codeElement
-					.getChildText("countryCode"));
-			String elevation = codeElement.getChildText("elevation");
-			if (elevation != null && !"".equals(elevation)) {
-				weatherObservation.setElevation(Integer.parseInt(elevation));
-			}
-			weatherObservation.setLatitude(Double.parseDouble(codeElement
-					.getChildText("lat")));
-			weatherObservation.setLongitude(Double.parseDouble(codeElement
-					.getChildText("lng")));
-			String temperature = codeElement.getChildText("temperature");
-			if (temperature != null && !"".equals(temperature)) {
-				weatherObservation.setTemperature(Double
-						.parseDouble(temperature));
-			}
-			String dewPoint = codeElement.getChildText("dewPoint");
-			if (dewPoint != null && !"".equals(dewPoint)) {
-				weatherObservation.setDewPoint(Double.parseDouble(dewPoint));
-			}
-			String humidity = codeElement.getChildText("humidity");
-			if (humidity != null && !"".equals(humidity)) {
-				weatherObservation.setHumidity(Double.parseDouble(humidity));
-			}
-			weatherObservation.setClouds(codeElement.getChildText("clouds"));
-			weatherObservation.setWeatherCondition(codeElement
-					.getChildText("weatherCondition"));
-			weatherObservation.setWindSpeed(codeElement
-					.getChildText("windSpeed"));
+			Element weatherObservationElement = (Element) obj;
+			WeatherObservation weatherObservation = getWeatherObservationFromElement(weatherObservationElement);
 			return weatherObservation;
 		}
 
 		return null;
 	}
 
+	public static WeatherObservation weatherIcao(String icaoCode) throws IOException, Exception {
+
+		String url = "/weatherIcaoXML?";
+
+		url = url + "&ICAO=" + icaoCode;
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = doc.getRootElement();
+		for (Object obj : root.getChildren("observation")) {
+			Element weatherObservationElement = (Element) obj;
+			WeatherObservation weatherObservation = getWeatherObservationFromElement(weatherObservationElement);
+			return weatherObservation;
+		}
+
+		return null;
+	}
+	
 	/**
 	 * @return the geoNamesServer, default is http://ws.geonames.org
 	 */
