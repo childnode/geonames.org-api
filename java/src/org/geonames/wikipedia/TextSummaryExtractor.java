@@ -42,7 +42,7 @@ public class TextSummaryExtractor {
 		int idx = 0;
 
 		// loop over all characters in input string
-		while (idx > -1 && (summary.length() < length || length == 0)
+		while (idx > -1 && (summary.length() < 50 + 2 * length || length == 0)
 				&& idx < pText.length()) {
 			// get next chacter
 			char c = pText.charAt(idx);
@@ -111,6 +111,9 @@ public class TextSummaryExtractor {
 		}
 
 		String textString = removeIndentAtBeginning(summary.toString());
+		// remove empty parenthesis
+		textString = textString.replaceAll("\\(\\)", "");
+
 		textString = removeWhiteSpace(
 				textString.replaceAll("\r", " ").replaceAll("\n", " ")
 						.replaceAll("\t", " ")).trim();
@@ -125,14 +128,14 @@ public class TextSummaryExtractor {
 		// only look at first paragraph for summary
 		int endOfTextIdx = textString.indexOf("==");
 		if (endOfTextIdx == -1) {
-			endOfTextIdx = length;
+			endOfTextIdx = textString.length();
 		}
 
 		// 
 		if (endOfTextIdx < 20 || endOfTextIdx > length) {
-			endOfTextIdx = textString.lastIndexOf(".");
+			endOfTextIdx = textString.lastIndexOf(".", length);
 			if (endOfTextIdx < 0.7 * length) {
-				endOfTextIdx = textString.lastIndexOf(" ");
+				endOfTextIdx = textString.lastIndexOf(" ", length);
 			}
 		}
 
