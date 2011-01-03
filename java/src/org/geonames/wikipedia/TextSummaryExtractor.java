@@ -25,13 +25,19 @@ public class TextSummaryExtractor {
 	/**
 	 * extract a text summary from a wikipedia article. The wikipedia markup is
 	 * removed. The length of the summary is equal or lower the length of the
-	 * parameter. The extractor tries to end the summary at a fullstop.
+	 * parameter. The extractor tries to end the summary at a fullstop. It stops
+	 * at a new paragraph.
 	 * 
 	 * @param pText
 	 * @param length
 	 * @return
 	 */
 	public static String extractSummary(String pText, int length) {
+		return extractSummary(pText, length, true);
+	}
+
+	public static String extractSummary(String pText, int length,
+			boolean stopAtParagraph) {
 		if (pText == null) {
 			return null;
 		}
@@ -125,10 +131,14 @@ public class TextSummaryExtractor {
 		textString = textString.replaceAll("&nbsp;", " ");
 
 		// find full stop near length of text
-		// only look at first paragraph for summary
-		int endOfTextIdx = textString.indexOf("==");
-		if (endOfTextIdx == -1) {
-			endOfTextIdx = textString.length();
+		int endOfTextIdx = textString.length();
+
+		if (stopAtParagraph) {
+			// only look at first paragraph for summary
+			int paragraph = textString.indexOf("==");
+			if (paragraph > 10) {
+				endOfTextIdx = paragraph;
+			}
 		}
 
 		// 
