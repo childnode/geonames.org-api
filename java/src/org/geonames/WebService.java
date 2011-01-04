@@ -51,7 +51,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.5";
+	private static String USER_AGENT = "geonames-webservice-client-1.0.6";
 
 	private static String geoNamesServer = "http://ws.geonames.org";
 
@@ -1431,23 +1431,26 @@ public class WebService {
 			timezone.setTimezoneId(codeElement.getChildText("timezoneId"));
 			timezone.setCountryCode(codeElement.getChildText("countryCode"));
 
-			String minuteDateFmt = "yyyy-MM-dd HH:mm";
-			SimpleDateFormat df = null;
-			if (codeElement.getChildText("time").length() == minuteDateFmt
-					.length()) {
-				df = new SimpleDateFormat(minuteDateFmt);
+			if (codeElement.getChildText("time") != null) {
+				String minuteDateFmt = "yyyy-MM-dd HH:mm";
+				SimpleDateFormat df = null;
+				if (codeElement.getChildText("time").length() == minuteDateFmt
+						.length()) {
+					df = new SimpleDateFormat(minuteDateFmt);
+				} else {
+					df = new SimpleDateFormat(DATEFMT);
+				}
+				timezone.setTime(df.parse(codeElement.getChildText("time")));
+				timezone.setSunrise(df.parse(codeElement
+						.getChildText("sunrise")));
+				timezone
+						.setSunset(df.parse(codeElement.getChildText("sunset")));
 
-			} else {
-				df = new SimpleDateFormat(DATEFMT);
+				timezone.setGmtOffset(Double.parseDouble(codeElement
+						.getChildText("gmtOffset")));
+				timezone.setDstOffset(Double.parseDouble(codeElement
+						.getChildText("dstOffset")));
 			}
-			timezone.setTime(df.parse(codeElement.getChildText("time")));
-			timezone.setSunrise(df.parse(codeElement.getChildText("sunrise")));
-			timezone.setSunset(df.parse(codeElement.getChildText("sunset")));
-
-			timezone.setGmtOffset(Double.parseDouble(codeElement
-					.getChildText("gmtOffset")));
-			timezone.setDstOffset(Double.parseDouble(codeElement
-					.getChildText("dstOffset")));
 			return timezone;
 		}
 
@@ -1484,7 +1487,8 @@ public class WebService {
 		return null;
 	}
 
-	public static WeatherObservation weatherIcao(String icaoCode) throws IOException, Exception {
+	public static WeatherObservation weatherIcao(String icaoCode)
+			throws IOException, Exception {
 
 		String url = "/weatherIcaoXML?";
 
@@ -1503,7 +1507,7 @@ public class WebService {
 
 		return null;
 	}
-	
+
 	/**
 	 * @return the geoNamesServer, default is http://ws.geonames.org
 	 */
