@@ -55,7 +55,18 @@ public class TextSummaryExtractor {
 
 			if (c == '{') {
 				// skip template and set idx to end of template
-				idx = skipTemplate(pText, idx);
+				int endidx = skipTemplate(pText, idx);
+				// do we have an audio template?
+				if (pText.toLowerCase().indexOf("{{audio") == idx) {
+					int begLabelIdx = pText.lastIndexOf("|", endidx);
+					if (begLabelIdx > -1) {
+						String label = pText.substring(begLabelIdx + 1,
+								endidx - 2).trim();
+						summary.append(label);
+					}
+				}
+				// skip template and set idx to end of template
+				idx = endidx;
 				continue;
 			} else if (c == '<') {
 				// is it a html comment
@@ -118,7 +129,9 @@ public class TextSummaryExtractor {
 
 		String textString = removeIndentAtBeginning(summary.toString());
 		// remove empty parenthesis
-		textString = textString.replaceAll("\\(\\)", "");
+		textString = textString.replaceAll("\\([^\\w]*\\)", "");
+		// remove coma in front of parenthesis
+		textString = textString.replaceAll("\\(, ", "(");
 
 		textString = removeWhiteSpace(
 				textString.replaceAll("\r", " ").replaceAll("\n", " ")
