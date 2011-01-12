@@ -130,8 +130,9 @@ public class TextSummaryExtractor {
 		String textString = removeIndentAtBeginning(summary.toString());
 		// remove empty parenthesis
 		textString = textString.replaceAll("\\([^\\w]*\\)", "");
-		// remove coma in front of parenthesis
-		textString = textString.replaceAll("\\(, ", "(");
+		// remove comma in front of parenthesis
+		textString = textString.replaceAll("\\([, ]*", "(");
+		textString = textString.replaceAll("[, ]*\\)", ")");
 
 		textString = removeWhiteSpace(
 				textString.replaceAll("\r", " ").replaceAll("\n", " ")
@@ -142,6 +143,8 @@ public class TextSummaryExtractor {
 		// convert 'non breaking html spaces' into blanks. But preserve them
 		// (don't remove white space)
 		textString = textString.replaceAll("&nbsp;", " ");
+		textString = textString.replaceAll("\\( ", "(");
+		textString = textString.replaceAll(" \\)", ")");
 
 		// find full stop near length of text
 		int endOfTextIdx = textString.length();
