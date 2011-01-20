@@ -53,9 +53,9 @@ public class WebService {
 
 	private static String USER_AGENT = "geonames-webservice-client-1.0.6";
 
-	private static String geoNamesServer = "http://ws.geonames.org";
+	private static String geoNamesServer = "http://api.geonames.org";
 
-	private static String geoNamesServerFailover = "http://ws.geonames.org";
+	private static String geoNamesServerFailover = "http://api.geonames.org";
 
 	private static long timeOfLastFailureMainServer;
 
@@ -406,7 +406,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("code")) {
 			Element codeElement = (Element) obj;
 			PostalCode code = new PostalCode();
@@ -479,7 +479,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("code")) {
 			Element codeElement = (Element) obj;
 			PostalCode code = new PostalCode();
@@ -544,7 +544,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
 			Toponym toponym = getToponymFromElement(toponymElement);
@@ -614,7 +614,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("geoname")) {
 			Element toponymElement = (Element) obj;
 			Toponym toponym = getToponymFromElement(toponymElement);
@@ -636,7 +636,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("address")) {
 			Element codeElement = (Element) obj;
 			Address address = new Address();
@@ -687,7 +687,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("intersection")) {
 			Element e = (Element) obj;
 			Intersection intersection = new Intersection();
@@ -738,7 +738,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("streetSegment")) {
 			Element e = (Element) obj;
 			StreetSegment streetSegment = new StreetSegment();
@@ -936,9 +936,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
-
-		checkException(root);
+		Element root = rootAndCheckException(doc);
 
 		searchResult.totalResultsCount = Integer.parseInt(root
 				.getChildText("totalResultsCount"));
@@ -985,9 +983,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
-
-		checkException(root);
+		Element root = rootAndCheckException(doc);
 
 		searchResult.totalResultsCount = Integer.parseInt(root
 				.getChildText("totalResultsCount"));
@@ -1033,9 +1029,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
-
-		checkException(root);
+		Element root = rootAndCheckException(doc);
 
 		searchResult.totalResultsCount = Integer.parseInt(root
 				.getChildText("totalResultsCount"));
@@ -1084,9 +1078,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
-
-		checkException(root);
+		Element root = rootAndCheckException(doc);
 
 		List<Toponym> toponyms = new ArrayList<Toponym>();
 		for (Object obj : root.getChildren("geoname")) {
@@ -1119,15 +1111,26 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
-
-		checkException(root);
+		Element root = rootAndCheckException(doc);
 	}
 
-	private static void checkException(Element root) throws Exception {
+	private static Element rootAndCheckException(Document doc)
+			throws GeoNamesException {
+		Element root = doc.getRootElement();
+		checkException(root);
+		return root;
+	}
+
+	private static void checkException(Element root) throws GeoNamesException {
 		Element message = root.getChild("status");
 		if (message != null) {
-			throw new Exception(message.getAttributeValue("message"));
+			int code = 0;
+			try {
+				code = Integer.parseInt(message.getAttributeValue("value"));
+			} catch (NumberFormatException numberFormatException) {
+			}
+			throw new GeoNamesException(code, message
+					.getAttributeValue("message"));
 		}
 	}
 
@@ -1155,7 +1158,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("entry")) {
 			Element wikipediaArticleElement = (Element) obj;
 			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
@@ -1189,7 +1192,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("entry")) {
 			Element wikipediaArticleElement = (Element) obj;
 			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
@@ -1245,7 +1248,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("entry")) {
 			Element wikipediaArticleElement = (Element) obj;
 			WikipediaArticle wikipediaArticle = getWikipediaArticleFromElement(wikipediaArticleElement);
@@ -1424,7 +1427,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("timezone")) {
 			Element codeElement = (Element) obj;
 			Timezone timezone = new Timezone();
@@ -1477,7 +1480,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("observation")) {
 			Element weatherObservationElement = (Element) obj;
 			WeatherObservation weatherObservation = getWeatherObservationFromElement(weatherObservationElement);
@@ -1498,7 +1501,7 @@ public class WebService {
 		SAXBuilder parser = new SAXBuilder();
 		Document doc = parser.build(connect(url));
 
-		Element root = doc.getRootElement();
+		Element root = rootAndCheckException(doc);
 		for (Object obj : root.getChildren("observation")) {
 			Element weatherObservationElement = (Element) obj;
 			WeatherObservation weatherObservation = getWeatherObservationFromElement(weatherObservationElement);

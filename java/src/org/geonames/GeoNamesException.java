@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Marc Wick, geonames.org
+ * Copyright 2011 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,37 @@
 package org.geonames;
 
 /**
- * is thrown when the search criteria is initialized with obviously invalid parameters,
- * such as an invalid country code.
- * 
  * @author marc
+ * @since 20.01.2011
  * 
  */
-public class InvalidParameterException extends GeoNamesException {
+public class GeoNamesException extends Exception {
 
-	public InvalidParameterException(String msg) {
+	private static final long serialVersionUID = 746586385626445380L;
+	private String message;
+	private int exceptionCode;
+
+	public GeoNamesException(int exceptionCode, String msg) {
 		super(msg);
+		this.exceptionCode = exceptionCode;
+	}
+
+	public GeoNamesException(String msg) {
+		super(msg);
+	}
+
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * @return the exceptionCode
+	 */
+	public int getExceptionCode() {
+		return exceptionCode;
 	}
 
 }

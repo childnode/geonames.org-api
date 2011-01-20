@@ -23,7 +23,7 @@ package org.geonames;
  * @author marc
  * 
  */
-public class InsufficientStyleException extends Exception {
+public class InsufficientStyleException extends GeoNamesException {
 	public InsufficientStyleException(String msg) {
 		super(msg);
 	}
