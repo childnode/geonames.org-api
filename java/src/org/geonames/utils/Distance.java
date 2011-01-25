@@ -50,7 +50,7 @@ public class Distance {
 	 * @return
 	 */
 	public static double distance(double lat1, double lng1, double lat2,
-			double lng2, char unit) {
+			double lng2, char unit, int numberOfDigits) {
 		double a1 = Math.toRadians(lat1);
 		double b1 = Math.toRadians(lng1);
 		double a2 = Math.toRadians(lat2);
@@ -67,7 +67,7 @@ public class Distance {
 		}
 
 		if (Double.isNaN(dist)) {
-			// use pytagoras for very small distances, 
+			// use pytagoras for very small distances,
 			dist = Math.sqrt(Math.pow(Math.abs(lat1 - lat2), 2)
 					+ Math.pow(Math.abs(lng1 - lng2), 2));
 			// as rule of thumb multiply with 110km =1 degree
@@ -78,16 +78,22 @@ public class Distance {
 			}
 		}
 
+		if (numberOfDigits == 0) {
+			dist = (int) dist;
+		} else if (numberOfDigits > 0) {
+			double factor = Math.pow(10, numberOfDigits);
+			dist = Math.floor(dist * factor) / factor;
+		}
 		return dist;
 	}
 
 	public static double distanceKM(double lat1, double lng1, double lat2,
 			double lng2) {
-		return distance(lat1, lng1, lat2, lng2, 'K');
+		return distance(lat1, lng1, lat2, lng2, 'K', 3);
 	}
 
 	public static double distanceMiles(double lat1, double lng1, double lat2,
 			double lng2) {
-		return distance(lat1, lng1, lat2, lng2, 'M');
+		return distance(lat1, lng1, lat2, lng2, 'M', 3);
 	}
 }
