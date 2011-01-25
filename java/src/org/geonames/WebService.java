@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -51,7 +52,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "geonames-webservice-client-1.0.6";
+	private static String USER_AGENT = "gnwsc/1.1.1";
 
 	private static String geoNamesServer = "http://api.geonames.org";
 
@@ -60,12 +61,53 @@ public class WebService {
 	private static long timeOfLastFailureMainServer;
 
 	private static Style defaultStyle = Style.MEDIUM;
-
+ 
 	private static int readTimeOut = 120000;
 
 	private static int connectTimeOut = 10000;
 
 	private static String DATEFMT = "yyyy-MM-dd HH:mm:ss";
+
+	static {
+		USER_AGENT += " (";
+		String os = System.getProperty("os.name");
+		if (os != null) {
+			USER_AGENT += os + ",";
+		}
+		String osVersion = System.getProperty("os.version");
+		if (osVersion != null) {
+			USER_AGENT += osVersion;
+		}
+		USER_AGENT += ")";
+
+		// android version
+		try {
+			Class aClass = Class.forName("android.os.Build");
+			if (aClass != null) {
+				Field[] fields = aClass.getFields();
+				if (fields != null) {
+					for (Field field : fields) {
+						if ("MODEL".equalsIgnoreCase(field.getName())) {
+							USER_AGENT += "(" + field.get(aClass) + ", ";
+						}
+					}
+				}
+				aClass = Class.forName("android.os.Build$VERSION");
+				if (aClass != null) {
+					fields = aClass.getFields();
+					if (fields != null) {
+						for (Field field : fields) {
+							if ("RELEASE".equalsIgnoreCase(field.getName())) {
+								USER_AGENT += field.get(aClass);
+							}
+						}
+					}
+				}
+				USER_AGENT += ")";
+			}
+		} catch (Throwable t) {
+		}
+	}
 
 	/**
 	 * user name to pass to commercial web services for authentication and
