@@ -29,11 +29,13 @@ public class GeoNamesException extends Exception {
 
 	public GeoNamesException(int exceptionCode, String msg) {
 		super(msg);
+		this.message = msg;
 		this.exceptionCode = exceptionCode;
 	}
 
 	public GeoNamesException(String msg) {
 		super(msg);
+		this.message=msg;
 	}
 
 	/**
