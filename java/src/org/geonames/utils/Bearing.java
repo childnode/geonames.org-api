@@ -16,16 +16,16 @@
  */
 package org.geonames.utils;
 
-import static java.lang.Math.atan;
+import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
-import static java.lang.Math.toRadians;
 import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 /**
  * compass bearing from the first point to the second point in degrees.
  * 
- * @author Mark Thomas
+ * @author Marc Wick
  */
 public class Bearing {
 
@@ -40,21 +40,15 @@ public class Bearing {
 	 * @param lng2
 	 * @return
 	 */
-	public static double calculateBearing(double lat1, double lng1,
-			double lat2, double lng2) {
-		final double x3 = toRadians(lat1);
-		final double y3 = toRadians(lng1);
-		final double x4 = toRadians(lat2);
-		final double y4 = toRadians(lng2);
-		double numerator = (sin(y3) * sin(x4 - x3));
-		double denominator = ((sin(y4) * cos(y3)) - (cos(y4) * sin(y3) * cos(x4
-				- x3)));
-		double bearing = toDegrees(atan(numerator / denominator));
-		if (denominator > 0) {
-			bearing += 360D;
-		} else if (denominator > 0) {
-			bearing += 180;
-		}
-		return (bearing < 0 ? (bearing + 360D) : bearing);
+	// http://www.movable-type.co.uk/scripts/latlong.html
+	public static int calculateBearing(double lat1, double lng1, double lat2,
+			double lng2) {
+		double dLon = toRadians(lng2 - lng1);
+		lat1 = toRadians(lat1);
+		lat2 = toRadians(lat2);
+		double y = sin(dLon) * cos(lat2);
+		double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+		double brng = toDegrees(atan2(y, x));
+		return (int) (brng + 360) % 360;
 	}
 }
