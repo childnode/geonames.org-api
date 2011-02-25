@@ -61,7 +61,7 @@ public class WebService {
 	private static long timeOfLastFailureMainServer;
 
 	private static Style defaultStyle = Style.MEDIUM;
- 
+
 	private static int readTimeOut = 120000;
 
 	private static int connectTimeOut = 10000;
@@ -245,6 +245,7 @@ public class WebService {
 			toponym.setGeoNameId(Integer.parseInt(geonameId));
 		}
 
+		toponym.setContinentCode(toponymElement.getChildText("continentCode"));
 		toponym.setCountryCode(toponymElement.getChildText("countryCode"));
 		toponym.setCountryName(toponymElement.getChildText("countryName"));
 
@@ -305,12 +306,15 @@ public class WebService {
 		wikipediaArticle.setLongitude(Double
 				.parseDouble(wikipediaArticleElement.getChildText("lng")));
 
+		wikipediaArticle.setRank(Integer.parseInt(wikipediaArticleElement
+				.getChildText("rank")));
+
 		String population = wikipediaArticleElement.getChildText("population");
 		if (population != null && !"".equals(population)) {
 			wikipediaArticle.setPopulation(Integer.parseInt(population));
 		}
 
-		String elevation = wikipediaArticleElement.getChildText("altitude");
+		String elevation = wikipediaArticleElement.getChildText("elevation");
 		if (elevation != null && !"".equals(elevation)) {
 			wikipediaArticle.setElevation(Integer.parseInt(elevation));
 		}
