@@ -30,6 +30,8 @@ public class Toponym {
 
 	private String alternateNames;
 
+	private String continentCode;
+
 	private String countryCode;
 
 	private String countryName;
@@ -65,6 +67,21 @@ public class Toponym {
 	private Timezone timezone;
 
 	private Style style;
+
+	/**
+	 * @return the continentCode
+	 */
+	public String getContinentCode() {
+		return continentCode;
+	}
+
+	/**
+	 * @param continentCode
+	 *            the continentCode to set
+	 */
+	public void setContinentCode(String continentCode) {
+		this.continentCode = continentCode;
+	}
 
 	/**
 	 * @return Returns the ISO 3166-1-alpha-2 countryCode.
