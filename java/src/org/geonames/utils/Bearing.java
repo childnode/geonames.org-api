@@ -41,14 +41,14 @@ public class Bearing {
 	 * @return
 	 */
 	// http://www.movable-type.co.uk/scripts/latlong.html
-	public static int calculateBearing(double lat1, double lng1, double lat2,
-			double lng2) {
+	public static double calculateBearing(double lat1, double lng1,
+			double lat2, double lng2) {
 		double dLon = toRadians(lng2 - lng1);
 		lat1 = toRadians(lat1);
 		lat2 = toRadians(lat2);
 		double y = sin(dLon) * cos(lat2);
 		double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
 		double brng = toDegrees(atan2(y, x));
-		return (int) (brng + 360) % 360;
+		return (brng + 360) % 360;
 	}
 }
