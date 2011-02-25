@@ -16,6 +16,8 @@
  */
 package org.geonames;
 
+import java.util.Comparator;
+
 /**
  * a wikipedia article
  * 
@@ -36,18 +38,20 @@ public class WikipediaArticle {
 
 	private int population;
 
-	private int elevation;
+	private Integer elevation;
 
 	private double latitude;
 
 	private double longitude;
-	
+
 	private String thumbnailImg;
+
+	private int rank;
 
 	/**
 	 * @return Returns the elevation.
 	 */
-	public int getElevation() {
+	public Integer getElevation() {
 		return elevation;
 	}
 
@@ -187,10 +191,37 @@ public class WikipediaArticle {
 	}
 
 	/**
-	 * @param thumbnailImg the thumbnailImg to set
+	 * @param thumbnailImg
+	 *            the thumbnailImg to set
 	 */
 	public void setThumbnailImg(String thumbnailImg) {
 		this.thumbnailImg = thumbnailImg;
 	}
 
+	/**
+	 * @return the rank
+	 */
+	public int getRank() {
+		return rank;
+	}
+
+	/**
+	 * @param rank
+	 *            the rank to set
+	 */
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+	public final static Comparator ELEVATION_ORDER = new Comparator<WikipediaArticle>() {
+		public int compare(WikipediaArticle o1, WikipediaArticle o2) {
+			return Double.compare(o2.elevation, o1.elevation);
+		}
+	};
+
+	public final static Comparator RANK_ORDER = new Comparator<WikipediaArticle>() {
+		public int compare(WikipediaArticle o1, WikipediaArticle o2) {
+			return Double.compare(o2.rank, o1.rank);
+		}
+	};
 }
