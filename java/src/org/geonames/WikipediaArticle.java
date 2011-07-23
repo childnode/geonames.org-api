@@ -16,6 +16,8 @@
  */
 package org.geonames;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Comparator;
 
 /**
@@ -172,6 +174,18 @@ public class WikipediaArticle {
 	 * @return Returns the wikipediaUrl.
 	 */
 	public String getWikipediaUrl() {
+		if (wikipediaUrl == null || WebService.isAndroid()) {
+			String urlTitle = title.replace(' ', '_');
+			try {
+				urlTitle = URLEncoder.encode(urlTitle, "UTF8");
+			} catch (UnsupportedEncodingException ex) {
+			}
+			String lang = language;
+			if (WebService.isAndroid()) {
+				lang += ".m";
+			}
+			return "http://" + lang + ".wikipedia.org/wiki/" + urlTitle;
+		}
 		return wikipediaUrl;
 	}
 
