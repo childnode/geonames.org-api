@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Marc Wick, geonames.org
+ * Copyright 2008-2011 Marc Wick, geonames.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +53,9 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.1";
+	private static String USER_AGENT = "gnwsc/1.1.2";
+
+	private static boolean isAndroid = false;
 
 	private static String geoNamesServer = "http://api.geonames.org";
 
@@ -84,6 +87,7 @@ public class WebService {
 		try {
 			Class aClass = Class.forName("android.os.Build");
 			if (aClass != null) {
+				isAndroid = true;
 				Field[] fields = aClass.getFields();
 				if (fields != null) {
 					for (Field field : fields) {
@@ -185,6 +189,13 @@ public class WebService {
 	}
 
 	/**
+	 * @return the isAndroid
+	 */
+	public static boolean isAndroid() {
+		return isAndroid;
+	}
+
+	/**
 	 * opens the connection to the url and sets the user agent. In case of an
 	 * IOException it checks whether a failover server is set and connects to
 	 * the failover server if it has been defined and if it is different from
@@ -232,9 +243,7 @@ public class WebService {
 		Toponym toponym = new Toponym();
 
 		toponym.setName(toponymElement.getChildText("name"));
-		toponym
-				.setAlternateNames(toponymElement
-						.getChildText("alternateNames"));
+		toponym.setAlternateNames(toponymElement.getChildText("alternateNames"));
 		toponym.setLatitude(Double.parseDouble(toponymElement
 				.getChildText("lat")));
 		toponym.setLongitude(Double.parseDouble(toponymElement
@@ -321,12 +330,15 @@ public class WebService {
 		return wikipediaArticle;
 	}
 
+	private static TimeZone utc = TimeZone.getTimeZone("UTC");
+
 	private static WeatherObservation getWeatherObservationFromElement(
 			Element weatherObservationElement) throws ParseException {
 		WeatherObservation weatherObservation = new WeatherObservation();
 		weatherObservation.setObservation(weatherObservationElement
 				.getChildText("observation"));
 		SimpleDateFormat df = new SimpleDateFormat(DATEFMT);
+		df.setTimeZone(utc);
 		weatherObservation.setObservationTime(df
 				.parse(weatherObservationElement
 						.getChildText("observationTime")));
@@ -402,8 +414,8 @@ public class WebService {
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "postalcode="
-					+ URLEncoder.encode(postalCodeSearchCriteria
-							.getPostalCode(), "UTF8");
+					+ URLEncoder.encode(
+							postalCodeSearchCriteria.getPostalCode(), "UTF8");
 		}
 		if (postalCodeSearchCriteria.getPlaceName() != null) {
 			if (!url.endsWith("&")) {
@@ -417,8 +429,8 @@ public class WebService {
 		if (postalCodeSearchCriteria.getAdminCode1() != null) {
 			url = url
 					+ "&adminCode1="
-					+ URLEncoder.encode(postalCodeSearchCriteria
-							.getAdminCode1(), "UTF8");
+					+ URLEncoder.encode(
+							postalCodeSearchCriteria.getAdminCode1(), "UTF8");
 		}
 
 		if (postalCodeSearchCriteria.getCountryCode() != null) {
@@ -464,8 +476,7 @@ public class WebService {
 			code.setAdminName1(codeElement.getChildText("adminName1"));
 			code.setAdminName2(codeElement.getChildText("adminName2"));
 
-			code.setLatitude(Double
-					.parseDouble(codeElement.getChildText("lat")));
+			code.setLatitude(Double.parseDouble(codeElement.getChildText("lat")));
 			code.setLongitude(Double.parseDouble(codeElement
 					.getChildText("lng")));
 
@@ -491,8 +502,8 @@ public class WebService {
 		if (postalCodeSearchCriteria.getPostalCode() != null) {
 			url = url
 					+ "&postalcode="
-					+ URLEncoder.encode(postalCodeSearchCriteria
-							.getPostalCode(), "UTF8");
+					+ URLEncoder.encode(
+							postalCodeSearchCriteria.getPostalCode(), "UTF8");
 		}
 		if (postalCodeSearchCriteria.getPlaceName() != null) {
 			url = url
@@ -533,8 +544,7 @@ public class WebService {
 			code.setPlaceName(codeElement.getChildText("name"));
 			code.setCountryCode(codeElement.getChildText("countryCode"));
 
-			code.setLatitude(Double
-					.parseDouble(codeElement.getChildText("lat")));
+			code.setLatitude(Double.parseDouble(codeElement.getChildText("lat")));
 			code.setLongitude(Double.parseDouble(codeElement
 					.getChildText("lng")));
 
@@ -815,6 +825,43 @@ public class WebService {
 		return segments;
 	}
 
+	public static List<StreetSegment> findNearbyStreetsOSM(double latitude,
+			double longitude, double radius) throws Exception {
+
+		String url = "/findNearbyStreetsOSM?";
+
+		url = url + "&lat=" + latitude;
+		url = url + "&lng=" + longitude;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
+		url = addUserName(url);
+
+		List<StreetSegment> segments = new ArrayList<StreetSegment>();
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = rootAndCheckException(doc);
+		for (Object obj : root.getChildren("streetSegment")) {
+			Element e = (Element) obj;
+			StreetSegment streetSegment = new StreetSegment();
+			String line = e.getChildText("line");
+			String[] points = line.split(",");
+			double[] latArray = new double[points.length];
+			double[] lngArray = new double[points.length];
+			for (int i = 0; i < points.length; i++) {
+				String[] coords = points[i].split(" ");
+				lngArray[i] = Double.parseDouble(coords[0]);
+				latArray[i] = Double.parseDouble(coords[1]);
+			}
+
+			streetSegment.setName(e.getChildText("name"));
+			segments.add(streetSegment);
+		}
+		return segments;
+	}
+
 	/**
 	 * convenience method for {@link #search(ToponymSearchCriteria)}
 	 * 
@@ -930,7 +977,12 @@ public class WebService {
 		if (searchCriteria.getCountryCode() != null) {
 			url = url + "&country=" + searchCriteria.getCountryCode();
 		}
-
+		if (searchCriteria.getCountryBias() != null) {
+			if (!url.endsWith("&")) {
+				url = url + "&";
+			}
+			url = url + "countryBias=" + searchCriteria.getCountryBias();
+		}
 		if (searchCriteria.getContinentCode() != null) {
 			url = url + "&continentCode=" + searchCriteria.getContinentCode();
 		}
@@ -1175,8 +1227,8 @@ public class WebService {
 				code = Integer.parseInt(message.getAttributeValue("value"));
 			} catch (NumberFormatException numberFormatException) {
 			}
-			throw new GeoNamesException(code, message
-					.getAttributeValue("message"));
+			throw new GeoNamesException(code,
+					message.getAttributeValue("message"));
 		}
 	}
 
@@ -1490,11 +1542,14 @@ public class WebService {
 					df = new SimpleDateFormat(DATEFMT);
 				}
 				timezone.setTime(df.parse(codeElement.getChildText("time")));
-				timezone.setSunrise(df.parse(codeElement
-						.getChildText("sunrise")));
-				timezone
-						.setSunset(df.parse(codeElement.getChildText("sunset")));
-
+				if (codeElement.getChildText("sunrise") != null) {
+					timezone.setSunrise(df.parse(codeElement
+							.getChildText("sunrise")));
+				}
+				if (codeElement.getChildText("sunset") != null) {
+					timezone.setSunset(df.parse(codeElement
+							.getChildText("sunset")));
+				}
 				timezone.setGmtOffset(Double.parseDouble(codeElement
 						.getChildText("gmtOffset")));
 				timezone.setDstOffset(Double.parseDouble(codeElement
