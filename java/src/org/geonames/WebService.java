@@ -53,7 +53,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.2";
+	private static String USER_AGENT = "gnwsc/1.1.3";
 
 	private static boolean isAndroid = false;
 
@@ -62,6 +62,10 @@ public class WebService {
 	private static String geoNamesServerFailover = "http://api.geonames.org";
 
 	private static long timeOfLastFailureMainServer;
+
+	private static long averageConnectTime;
+
+	private static long averageSampleSize = 20;
 
 	private static Style defaultStyle = Style.MEDIUM;
 
@@ -209,21 +213,35 @@ public class WebService {
 	private static InputStream connect(String url) throws IOException {
 		String currentlyActiveServer = getCurrentlyActiveServer();
 		try {
+			long begin = System.currentTimeMillis();
 			URLConnection conn = new URL(currentlyActiveServer + url)
 					.openConnection();
 			conn.setConnectTimeout(connectTimeOut);
 			conn.setReadTimeout(readTimeOut);
 			conn.setRequestProperty("User-Agent", USER_AGENT);
 			InputStream in = conn.getInputStream();
+			long elapsedTime = System.currentTimeMillis() - begin;
+			averageConnectTime = (averageConnectTime * (averageSampleSize - 1) + elapsedTime)
+					/ averageSampleSize;
+			// if the average elapsed time is too long we switch server
+			if (geoNamesServerFailover != null && averageConnectTime > 5000
+					&& !currentlyActiveServer.equals(geoNamesServerFailover)) {
+				timeOfLastFailureMainServer = System.currentTimeMillis();
+			}
 			return in;
 		} catch (IOException e) {
 			// we cannot reach the server
 			logger.log(Level.WARNING, "problems connecting to geonames server "
-					+ geoNamesServer, e);
+					+ currentlyActiveServer, e);
 			// is a failover server defined?
 			if (geoNamesServerFailover == null
 			// is it different from the one we are using?
 					|| currentlyActiveServer.equals(geoNamesServerFailover)) {
+				if (currentlyActiveServer.equals(geoNamesServerFailover)) {
+					// failover server is not accessible, we throw exception
+					// and switch back to main server.
+					timeOfLastFailureMainServer = 0;
+				}
 				throw e;
 			}
 			timeOfLastFailureMainServer = System.currentTimeMillis();
