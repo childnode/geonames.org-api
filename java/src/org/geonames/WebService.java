@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -53,7 +55,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.3";
+	private static String USER_AGENT = "gnwsc/1.1.4";
 
 	private static boolean isAndroid = false;
 
@@ -211,50 +213,72 @@ public class WebService {
 	 * @throws IOException
 	 */
 	private static InputStream connect(String url) throws IOException {
+		int status = 0;
 		String currentlyActiveServer = getCurrentlyActiveServer();
 		try {
 			long begin = System.currentTimeMillis();
-			URLConnection conn = new URL(currentlyActiveServer + url)
-					.openConnection();
-			conn.setConnectTimeout(connectTimeOut);
-			conn.setReadTimeout(readTimeOut);
-			conn.setRequestProperty("User-Agent", USER_AGENT);
-			InputStream in = conn.getInputStream();
-			long elapsedTime = System.currentTimeMillis() - begin;
-			averageConnectTime = (averageConnectTime * (averageSampleSize - 1) + elapsedTime)
-					/ averageSampleSize;
-			// if the average elapsed time is too long we switch server
-			if (geoNamesServerFailover != null && averageConnectTime > 5000
-					&& !currentlyActiveServer.equals(geoNamesServerFailover)) {
-				timeOfLastFailureMainServer = System.currentTimeMillis();
-			}
-			return in;
-		} catch (IOException e) {
-			// we cannot reach the server
-			logger.log(Level.WARNING, "problems connecting to geonames server "
-					+ currentlyActiveServer, e);
-			// is a failover server defined?
-			if (geoNamesServerFailover == null
-			// is it different from the one we are using?
-					|| currentlyActiveServer.equals(geoNamesServerFailover)) {
-				if (currentlyActiveServer.equals(geoNamesServerFailover)) {
-					// failover server is not accessible, we throw exception
-					// and switch back to main server.
-					timeOfLastFailureMainServer = 0;
+			HttpURLConnection httpConnection = (HttpURLConnection) new URL(
+					currentlyActiveServer + url).openConnection();
+			httpConnection.setConnectTimeout(connectTimeOut);
+			httpConnection.setReadTimeout(readTimeOut);
+			httpConnection.setRequestProperty("User-Agent", USER_AGENT);
+			InputStream in = httpConnection.getInputStream();
+			status = httpConnection.getResponseCode();
+
+			if (status == 200) {
+				long elapsedTime = System.currentTimeMillis() - begin;
+				averageConnectTime = (averageConnectTime
+						* (averageSampleSize - 1) + elapsedTime)
+						/ averageSampleSize;
+				// if the average elapsed time is too long we switch server
+				if (geoNamesServerFailover != null
+						&& averageConnectTime > 5000
+						&& !currentlyActiveServer
+								.equals(geoNamesServerFailover)) {
+					timeOfLastFailureMainServer = System.currentTimeMillis();
 				}
-				throw e;
+				return in;
 			}
-			timeOfLastFailureMainServer = System.currentTimeMillis();
-			logger.info("trying to connect to failover server "
-					+ geoNamesServerFailover);
-			// try failover server
-			URLConnection conn = new URL(geoNamesServerFailover + url)
-					.openConnection();
-			conn.setRequestProperty("User-Agent", USER_AGENT
-					+ " failover from " + geoNamesServer);
-			InputStream in = conn.getInputStream();
-			return in;
+		} catch (IOException e) {
+			return tryFailoverServer(url, currentlyActiveServer, 0, e);
 		}
+		// we only get here if we had a statuscode <> 200
+		IOException ioException = new IOException("status code " + status
+				+ " for " + url);
+		return tryFailoverServer(url, currentlyActiveServer, status,
+				ioException);
+	}
+
+	private static InputStream tryFailoverServer(String url,
+			String currentlyActiveServer, int status, IOException e)
+			throws MalformedURLException, IOException {
+		// we cannot reach the server
+		logger.log(Level.WARNING, "problems connecting to geonames server "
+				+ currentlyActiveServer, e);
+		// is a failover server defined?
+		if (geoNamesServerFailover == null
+		// is it different from the one we are using?
+				|| currentlyActiveServer.equals(geoNamesServerFailover)) {
+			if (currentlyActiveServer.equals(geoNamesServerFailover)) {
+				// failover server is not accessible, we throw exception
+				// and switch back to main server.
+				timeOfLastFailureMainServer = 0;
+			}
+			throw e;
+		}
+		timeOfLastFailureMainServer = System.currentTimeMillis();
+		logger.info("trying to connect to failover server "
+				+ geoNamesServerFailover);
+		// try failover server
+		URLConnection conn = new URL(geoNamesServerFailover + url)
+				.openConnection();
+		String userAgent = USER_AGENT + " failover from " + geoNamesServer;
+		if (status != 0) {
+			userAgent += " " + status;
+		}
+		conn.setRequestProperty("User-Agent", userAgent);
+		InputStream in = conn.getInputStream();
+		return in;
 	}
 
 	private static Toponym getToponymFromElement(Element toponymElement) {
