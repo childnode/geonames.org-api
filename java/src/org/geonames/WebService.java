@@ -55,7 +55,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.4";
+	private static String USER_AGENT = "gnwsc/1.1.5";
 
 	private static boolean isAndroid = false;
 
@@ -720,6 +720,42 @@ public class WebService {
 		}
 
 		return places;
+	}
+
+	/**
+	 * 
+	 * @param geoNameId
+	 * @param language
+	 *            - optional
+	 * @param style
+	 *            - optional
+	 * @return the toponym for the geoNameId
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static Toponym get(int geoNameId, String language, String style)
+			throws IOException, Exception {
+		String url = "/get?";
+
+		url += "geonameId=" + geoNameId;
+
+		if (language != null) {
+			url = url + "&lang=" + language;
+		}
+
+		if (style != null) {
+			url = url + "&style=" + style;
+		} else {
+			url = addDefaultStyle(url);
+		}
+		url = addUserName(url);
+
+		SAXBuilder parser = new SAXBuilder();
+		Document doc = parser.build(connect(url));
+
+		Element root = rootAndCheckException(doc);
+		Toponym toponym = getToponymFromElement(root);
+		return toponym;
 	}
 
 	public static Address findNearestAddress(double latitude, double longitude)
