@@ -70,8 +70,14 @@ public class Toponym {
 
 	/**
 	 * @return the continentCode
+	 * @throws InsufficientStyleException
 	 */
-	public String getContinentCode() {
+	public String getContinentCode() throws InsufficientStyleException {
+		if (continentCode == null && style != null
+				&& Style.LONG.compareTo(style) > 0) {
+			throw new InsufficientStyleException(
+					"continentCode not supported by style " + style.name());
+		}
 		return continentCode;
 	}
 
