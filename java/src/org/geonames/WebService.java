@@ -56,7 +56,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.6";
+	private static String USER_AGENT = "gnwsc/1.1.7";
 
 	private static boolean isAndroid = false;
 
@@ -1568,9 +1568,13 @@ public class WebService {
 			throws IOException, Exception {
 
 		String url = "/timezone?";
+		double radius = 0;
 
 		url = url + "&lat=" + latitude;
 		url = url + "&lng=" + longitude;
+		if (radius > 0) {
+			url = url + "&radius=" + radius;
+		}
 		url = addUserName(url);
 
 		Element root = connectAndParse(url);
@@ -1702,7 +1706,8 @@ public class WebService {
 		if (geoNamesServerFailover != null) {
 			geoNamesServerFailover = geoNamesServerFailover.trim()
 					.toLowerCase();
-			if (!geoNamesServerFailover.startsWith("http://")) {
+			if (!geoNamesServerFailover.startsWith("http://")
+					&& !geoNamesServerFailover.startsWith("https://")) {
 				geoNamesServerFailover = "http://" + geoNamesServerFailover;
 			}
 		}
