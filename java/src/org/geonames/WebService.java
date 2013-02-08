@@ -56,7 +56,7 @@ public class WebService {
 
 	private static Logger logger = Logger.getLogger("org.geonames");
 
-	private static String USER_AGENT = "gnwsc/1.1.7";
+	private static String USER_AGENT = "gnwsc/1.1.9";
 
 	private static boolean isAndroid = false;
 
@@ -369,7 +369,12 @@ public class WebService {
 		toponym.setAdminCode2(toponymElement.getChildText("adminCode2"));
 		toponym.setAdminName2(toponymElement.getChildText("adminName2"));
 		toponym.setAdminCode3(toponymElement.getChildText("adminCode3"));
+		toponym.setAdminName3(toponymElement.getChildText("adminName3"));
 		toponym.setAdminCode4(toponymElement.getChildText("adminCode4"));
+		toponym.setAdminName4(toponymElement.getChildText("adminName4"));
+		//FIXME bug in server code fixed in 201210R
+		//toponym.setAdminCode5(toponymElement.getChildText("adminCode5"));
+		//toponym.setAdminName5(toponymElement.getChildText("adminName5"));
 
 		Element timezoneElement = toponymElement.getChild("timezone");
 		if (timezoneElement != null) {
@@ -554,19 +559,7 @@ public class WebService {
 		Element root = connectAndParse(url);
 		for (Object obj : root.getChildren("code")) {
 			Element codeElement = (Element) obj;
-			PostalCode code = new PostalCode();
-			code.setPostalCode(codeElement.getChildText("postalcode"));
-			code.setPlaceName(codeElement.getChildText("name"));
-			code.setCountryCode(codeElement.getChildText("countryCode"));
-			code.setAdminCode1(codeElement.getChildText("adminCode1"));
-			code.setAdminCode2(codeElement.getChildText("adminCode2"));
-			code.setAdminName1(codeElement.getChildText("adminName1"));
-			code.setAdminName2(codeElement.getChildText("adminName2"));
-
-			code.setLatitude(Double.parseDouble(codeElement.getChildText("lat")));
-			code.setLongitude(Double.parseDouble(codeElement
-					.getChildText("lng")));
-
+			PostalCode code = getPostalCodeFromElement(codeElement);
 			postalCodes.add(code);
 		}
 
@@ -623,29 +616,34 @@ public class WebService {
 		Element root = connectAndParse(url);
 		for (Object obj : root.getChildren("code")) {
 			Element codeElement = (Element) obj;
-			PostalCode code = new PostalCode();
-			code.setPostalCode(codeElement.getChildText("postalcode"));
-			code.setPlaceName(codeElement.getChildText("name"));
-			code.setCountryCode(codeElement.getChildText("countryCode"));
-
-			code.setLatitude(Double.parseDouble(codeElement.getChildText("lat")));
-			code.setLongitude(Double.parseDouble(codeElement
-					.getChildText("lng")));
-
-			code.setAdminName1(codeElement.getChildText("adminName1"));
-			code.setAdminCode1(codeElement.getChildText("adminCode1"));
-			code.setAdminName2(codeElement.getChildText("adminName2"));
-			code.setAdminCode2(codeElement.getChildText("adminCode2"));
-
+			PostalCode code = getPostalCodeFromElement(codeElement);
 			if (codeElement.getChildText("distance") != null) {
 				code.setDistance(Double.parseDouble(codeElement
 						.getChildText("distance")));
 			}
-
 			postalCodes.add(code);
 		}
 
 		return postalCodes;
+	}
+
+	private static PostalCode getPostalCodeFromElement(Element codeElement)
+			throws ParseException {
+		PostalCode code = new PostalCode();
+		code.setPostalCode(codeElement.getChildText("postalcode"));
+		code.setPlaceName(codeElement.getChildText("name"));
+		code.setCountryCode(codeElement.getChildText("countryCode"));
+
+		code.setLatitude(Double.parseDouble(codeElement.getChildText("lat")));
+		code.setLongitude(Double.parseDouble(codeElement.getChildText("lng")));
+
+		code.setAdminName1(codeElement.getChildText("adminName1"));
+		code.setAdminCode1(codeElement.getChildText("adminCode1"));
+		code.setAdminName2(codeElement.getChildText("adminName2"));
+		code.setAdminCode2(codeElement.getChildText("adminCode2"));
+		code.setAdminName3(codeElement.getChildText("adminName3"));
+		code.setAdminCode3(codeElement.getChildText("adminCode3"));
+		return code;
 	}
 
 	/**
@@ -701,10 +699,10 @@ public class WebService {
 	/* Overload function to allow backward compatibility */
 	/**
 	 * Based on the following inforamtion: Webservice Type : REST
-	 * ws.geonames.org/findNearbyWikipedia? Parameters : lang : language code
+	 * api.geonames.org/findNearbyWikipedia? Parameters : lang : language code
 	 * (around 240 languages) (default = en) lat,lng, radius (in km), maxRows
 	 * (default = 10) featureClass featureCode Example:
-	 * http://ws.geonames.org/findNearby?lat=47.3&lng=9
+	 * http://api.geonames.org/findNearby?lat=47.3&lng=9
 	 * 
 	 * @param: latitude
 	 * @param: longitude
@@ -1123,6 +1121,13 @@ public class WebService {
 			url = url + "&startRow=" + searchCriteria.getStartRow();
 		}
 
+		if (searchCriteria.getBoundingBox() != null) {
+			url = url + "&east=" + searchCriteria.getBoundingBox().getEast();
+			url = url + "&west=" + searchCriteria.getBoundingBox().getWest();
+			url = url + "&north=" + searchCriteria.getBoundingBox().getNorth();
+			url = url + "&south=" + searchCriteria.getBoundingBox().getSouth();
+		}
+
 		if (searchCriteria.getStyle() != null) {
 			url = url + "&style=" + searchCriteria.getStyle();
 		} else {
@@ -1362,10 +1367,10 @@ public class WebService {
 	/* Overload function to allow backward compatibility */
 	/**
 	 * Based on the following inform: Webservice Type : REST
-	 * ws.geonames.org/findNearbyWikipedia? Parameters : lang : language code
+	 * api.geonames.org/findNearbyWikipedia? Parameters : lang : language code
 	 * (around 240 languages) (default = en) lat,lng, radius (in km), maxRows
 	 * (default = 5) Example:
-	 * http://ws.geonames.org/findNearbyWikipedia?lat=47&lng=9
+	 * http://api.geonames.org/findNearbyWikipedia?lat=47&lng=9
 	 * 
 	 * @param: latitude
 	 * @param: longitude
@@ -1659,7 +1664,7 @@ public class WebService {
 	}
 
 	/**
-	 * @return the geoNamesServer, default is http://ws.geonames.org
+	 * @return the geoNamesServer, default is http://api.geonames.org
 	 */
 	public static String getGeoNamesServer() {
 		return geoNamesServer;
@@ -1674,7 +1679,7 @@ public class WebService {
 
 	/**
 	 * sets the server name for the GeoNames server to be used for the requests.
-	 * Default is ws.geonames.org
+	 * Default is api.geonames.org
 	 * 
 	 * @param geoNamesServer
 	 *            the geonamesServer to set
@@ -1694,7 +1699,7 @@ public class WebService {
 
 	/**
 	 * sets the default failover server for requests in case the main server is
-	 * not accessible. Default is ws.geonames.org<br>
+	 * not accessible. Default is api.geonames.org<br>
 	 * The failover server is only called if it is different from the main
 	 * server.<br>
 	 * The failover server is used for commercial GeoNames web service users.
