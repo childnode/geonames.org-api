@@ -70,6 +70,8 @@ public class ToponymSearchCriteria {
 
 	private int startRow;
 
+	private BoundingBox boundingBox;
+
 	/**
 	 * @return Returns the ISO 3166-1-alpha-2 countryCode.
 	 */
@@ -345,6 +347,21 @@ public class ToponymSearchCriteria {
 
 	public void setAdminCode4(String adminCode4) {
 		this.adminCode4 = adminCode4;
+	}
+
+	/**
+	 * @return the boundingBox
+	 */
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
+
+	/**
+	 * @param boundingBox
+	 *            the boundingBox to set
+	 */
+	public void setBoundingBox(BoundingBox boundingBox) {
+		this.boundingBox = boundingBox;
 	}
 
 }

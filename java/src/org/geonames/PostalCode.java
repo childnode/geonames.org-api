@@ -42,6 +42,10 @@ public class PostalCode {
 
 	private String adminCode2;
 
+	private String adminName3;
+
+	private String adminCode3;
+
 	private double distance;
 
 	/**
@@ -117,6 +121,36 @@ public class PostalCode {
 	 */
 	public void setAdminName2(String adminName2) {
 		this.adminName2 = adminName2;
+	}
+
+	/**
+	 * @return the adminName3
+	 */
+	public String getAdminName3() {
+		return adminName3;
+	}
+
+	/**
+	 * @param adminName3
+	 *            the adminName3 to set
+	 */
+	public void setAdminName3(String adminName3) {
+		this.adminName3 = adminName3;
+	}
+
+	/**
+	 * @return the adminCode3
+	 */
+	public String getAdminCode3() {
+		return adminCode3;
+	}
+
+	/**
+	 * @param adminCode3
+	 *            the adminCode3 to set
+	 */
+	public void setAdminCode3(String adminCode3) {
+		this.adminCode3 = adminCode3;
 	}
 
 	/**

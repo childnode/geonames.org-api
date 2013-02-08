@@ -53,16 +53,19 @@ public class Toponym {
 	private double longitude;
 
 	private String adminCode1;
-
 	private String adminName1;
 
 	private String adminCode2;
-
 	private String adminName2;
 
 	private String adminCode3;
+	private String adminName3;
 
 	private String adminCode4;
+	private String adminName4;
+
+	private String adminCode5;
+	private String adminName5;
 
 	private Timezone timezone;
 
@@ -409,6 +412,21 @@ public class Toponym {
 	}
 
 	/**
+	 * @return the adminCode5
+	 */
+	public String getAdminCode5() {
+		return adminCode5;
+	}
+
+	/**
+	 * @param adminCode5
+	 *            the adminCode5 to set
+	 */
+	public void setAdminCode5(String adminCode5) {
+		this.adminCode5 = adminCode5;
+	}
+
+	/**
 	 * @return the timezone
 	 */
 	public Timezone getTimezone() throws InsufficientStyleException {
@@ -466,6 +484,51 @@ public class Toponym {
 	 */
 	public void setAdminName2(String adminName2) {
 		this.adminName2 = adminName2;
+	}
+
+	/**
+	 * @return the adminName3
+	 */
+	public String getAdminName3() {
+		return adminName3;
+	}
+
+	/**
+	 * @param adminName3
+	 *            the adminName3 to set
+	 */
+	public void setAdminName3(String adminName3) {
+		this.adminName3 = adminName3;
+	}
+
+	/**
+	 * @return the adminName4
+	 */
+	public String getAdminName4() {
+		return adminName4;
+	}
+
+	/**
+	 * @param adminName4
+	 *            the adminName4 to set
+	 */
+	public void setAdminName4(String adminName4) {
+		this.adminName4 = adminName4;
+	}
+
+	/**
+	 * @return the adminName5
+	 */
+	public String getAdminName5() {
+		return adminName5;
+	}
+
+	/**
+	 * @param adminName5
+	 *            the adminName5 to set
+	 */
+	public void setAdminName5(String adminName5) {
+		this.adminName5 = adminName5;
 	}
 
 	/**
