@@ -1,1 +1,5 @@
+geonames.org WEB API cloned from sf.net (CVS) on 7th of August 2012
+
+see http://geonames.cvs.sourceforge.net/geonames/ for CVS code or project hosting website http://sourceforge.net/projects/geonames/ for details). For any service description please see http://www.geonames.org/source-code/ || http://www.geonames.org/export/web-services.html
+
 see https://github.com/childnode/mvnrepository/ for mvn repository whith compilations of geocode.org api (copied from http://www.geonames.org/source-code/)
